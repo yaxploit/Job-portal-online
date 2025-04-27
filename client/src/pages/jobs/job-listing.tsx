@@ -127,8 +127,8 @@ export default function JobListingPage() {
                 type="text"
                 placeholder="Location"
                 className="pl-10 pr-4 py-6 w-full"
-                value={location}
-                onChange={(e) => setLocation2(e.target.value)}
+                value={locationFilter}
+                onChange={(e) => setLocationFilter(e.target.value)}
               />
               <MapPin className="h-5 w-5 text-neutral-400 absolute left-3 top-3" />
             </div>
@@ -144,16 +144,16 @@ export default function JobListingPage() {
               <h2 className="text-xl font-bold text-neutral-900">
                 {localJobs && localJobs.length > 0 ? `${localJobs.length} Jobs Found` : 'Job Listings'}
               </h2>
-              {(keyword || location || jobType) && (
+              {(keyword || locationFilter || jobType) && (
                 <div className="flex gap-2 mt-1">
                   {keyword && (
                     <span className="text-sm text-neutral-500">
                       Keyword: {keyword}
                     </span>
                   )}
-                  {location && (
+                  {locationFilter && (
                     <span className="text-sm text-neutral-500">
-                      Location: {location}
+                      Location: {locationFilter}
                     </span>
                   )}
                   {jobType && (
