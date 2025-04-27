@@ -37,20 +37,47 @@ export default function JobListingPage() {
     setJobType(params.get('jobType') || '');
   }, [search, params]);
 
-  // Fetch jobs based on filters
-  const { data: jobs, isLoading, refetch } = useQuery<JobListingType[]>({
-    queryKey: ["/api/jobs", { keyword, location, jobType }],
-    queryFn: async () => {
-      let url = "/api/jobs?";
-      if (keyword) url += `keyword=${encodeURIComponent(keyword)}&`;
-      if (location) url += `location=${encodeURIComponent(location)}&`;
-      if (jobType) url += `jobType=${encodeURIComponent(jobType)}&`;
-      
-      const res = await fetch(url);
-      if (!res.ok) throw new Error("Failed to fetch jobs");
-      return res.json();
-    },
-  });
+  // Import local jobs functions
+  const [localJobs, setLocalJobs] = useState<JobListingType[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  // Initialize and fetch jobs
+  useEffect(() => {
+    try {
+      // Dynamically import to avoid issues with window/localStorage
+      import("@/lib/local-jobs").then(({ initLocalJobs, getFilteredJobs }) => {
+        // Initialize jobs
+        initLocalJobs();
+        
+        // Get filtered jobs
+        const filteredJobs = getFilteredJobs({
+          keyword,
+          location,
+          jobType
+        });
+        
+        setLocalJobs(filteredJobs);
+        setIsLoading(false);
+      });
+    } catch (error) {
+      console.error("Error loading jobs:", error);
+      setIsLoading(false);
+    }
+  }, [keyword, location, jobType]);
+  
+  // Refetch function for consistent API
+  const refetch = () => {
+    setIsLoading(true);
+    import("@/lib/local-jobs").then(({ getFilteredJobs }) => {
+      const filteredJobs = getFilteredJobs({
+        keyword,
+        location,
+        jobType
+      });
+      setLocalJobs(filteredJobs);
+      setIsLoading(false);
+    });
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -115,7 +142,7 @@ export default function JobListingPage() {
           <div className="flex justify-between items-center mb-6">
             <div>
               <h2 className="text-xl font-bold text-neutral-900">
-                {jobs && jobs.length > 0 ? `${jobs.length} Jobs Found` : 'Job Listings'}
+                {localJobs && localJobs.length > 0 ? `${localJobs.length} Jobs Found` : 'Job Listings'}
               </h2>
               {(keyword || location || jobType) && (
                 <div className="flex gap-2 mt-1">
@@ -222,9 +249,9 @@ export default function JobListingPage() {
                     </div>
                   ))}
                 </div>
-              ) : jobs && jobs.length > 0 ? (
+              ) : localJobs && localJobs.length > 0 ? (
                 <div className="space-y-4">
-                  {jobs.map((job) => (
+                  {localJobs.map((job) => (
                     <JobCard 
                       key={job.id} 
                       job={job} 

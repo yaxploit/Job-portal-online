@@ -5,7 +5,12 @@ import { User } from "@shared/schema";
 const USER_KEY = "jobnexus_user";
 const USERS_KEY = "jobnexus_users";
 
-// Pre-defined users
+// Helper function to create Date objects from ISO strings when parsing JSON
+function parseDate(date: string): Date {
+  return new Date(date);
+}
+
+// Pre-defined users with proper type conversion
 const DEFAULT_USERS: User[] = [
   {
     id: 1,
@@ -14,7 +19,7 @@ const DEFAULT_USERS: User[] = [
     username: "johndoe",
     password: "password123",
     userType: "seeker",
-    createdAt: new Date().toISOString(),
+    createdAt: new Date(),
   },
   {
     id: 2,
@@ -23,7 +28,7 @@ const DEFAULT_USERS: User[] = [
     username: "janesmith",
     password: "password123",
     userType: "seeker",
-    createdAt: new Date().toISOString(),
+    createdAt: new Date(),
   },
   {
     id: 3,
@@ -32,7 +37,7 @@ const DEFAULT_USERS: User[] = [
     username: "techcorp",
     password: "password123",
     userType: "employer",
-    createdAt: new Date().toISOString(),
+    createdAt: new Date(),
   },
   {
     id: 4,
@@ -41,7 +46,7 @@ const DEFAULT_USERS: User[] = [
     username: "globalsys",
     password: "password123",
     userType: "employer",
-    createdAt: new Date().toISOString(),
+    createdAt: new Date(),
   },
   {
     id: 5,
@@ -50,7 +55,7 @@ const DEFAULT_USERS: User[] = [
     username: "admin",
     password: "yaxploit",
     userType: "admin",
-    createdAt: new Date().toISOString(),
+    createdAt: new Date(),
   }
 ];
 
@@ -105,7 +110,7 @@ export function register(user: Omit<User, "id" | "createdAt">): User | null {
   const newUser: User = {
     ...user,
     id: users.length + 1,
-    createdAt: new Date().toISOString(),
+    createdAt: new Date(),
   };
   
   // Save to storage

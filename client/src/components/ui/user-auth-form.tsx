@@ -1,11 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useAuth } from "@/hooks/use-auth";
+import { AuthContext } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2 } from "lucide-react";
 import {
@@ -16,6 +15,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { useToast } from "@/hooks/use-toast";
 
 type UserAuthFormProps = {
   mode: "login" | "register";
@@ -53,25 +53,11 @@ type RegisterFormValues = z.infer<typeof registerSchema>;
 export default function UserAuthForm({ mode, userType }: UserAuthFormProps) {
   // Create a local state to track form submission
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
   
-  // Auth context state
-  const [authAvailable, setAuthAvailable] = useState(false);
-  const [authContext, setAuthContext] = useState<any>(null);
+  // Use useContext to access auth context
+  const auth = useContext(AuthContext);
   
-  // Use useEffect to avoid infinite render loops
-  useEffect(() => {
-    try {
-      const auth = useAuth();
-      if (auth) {
-        setAuthContext(auth);
-        setAuthAvailable(true);
-      }
-    } catch (error) {
-      console.log("Auth context not available in UserAuthForm, continuing with limited functionality");
-      setAuthAvailable(false);
-    }
-  }, []); // Empty dependency array means this only runs once on mount
-
   // Login form setup
   const loginForm = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -104,34 +90,72 @@ export default function UserAuthForm({ mode, userType }: UserAuthFormProps) {
   // Handle login submission
   const onLoginSubmit = (data: LoginFormValues) => {
     setIsSubmitting(true);
-    if (authAvailable && authContext?.loginMutation) {
-      authContext.loginMutation.mutate({
-        username: data.username,
-        password: data.password,
+    
+    try {
+      if (auth) {
+        auth.loginMutation.mutate({
+          username: data.username,
+          password: data.password,
+        },
+        {
+          onSettled: () => {
+            setIsSubmitting(false);
+          }
+        });
+      } else {
+        // If auth context is not available, show error toast
+        toast({
+          title: "Error",
+          description: "Authentication service unavailable",
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An error occurred during login",
+        variant: "destructive",
       });
-    } else {
-      // Fallback when auth context is not available
-      console.log("Login attempted with:", data.username);
-      setTimeout(() => setIsSubmitting(false), 1000);
+      setIsSubmitting(false);
     }
   };
 
   // Handle registration submission
   const onRegisterSubmit = (data: RegisterFormValues) => {
     setIsSubmitting(true);
-    if (authAvailable && authContext?.registerMutation) {
-      authContext.registerMutation.mutate({
-        name: data.name,
-        username: data.username,
-        email: data.email,
-        password: data.password,
-        confirmPassword: data.confirmPassword,
-        userType: userType,
+    
+    try {
+      if (auth) {
+        auth.registerMutation.mutate({
+          name: data.name,
+          username: data.username,
+          email: data.email,
+          password: data.password,
+          confirmPassword: data.confirmPassword,
+          userType: userType,
+        },
+        {
+          onSettled: () => {
+            setIsSubmitting(false);
+          }
+        });
+      } else {
+        // If auth context is not available, show error toast
+        toast({
+          title: "Error",
+          description: "Authentication service unavailable",
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An error occurred during registration",
+        variant: "destructive",
       });
-    } else {
-      // Fallback when auth context is not available
-      console.log("Registration attempted with:", data.username, data.email);
-      setTimeout(() => setIsSubmitting(false), 1000);
+      setIsSubmitting(false);
     }
   };
 
@@ -193,9 +217,9 @@ export default function UserAuthForm({ mode, userType }: UserAuthFormProps) {
             <Button
               type="submit"
               className="w-full"
-              disabled={isSubmitting || (authContext?.loginMutation?.isPending)}
+              disabled={isSubmitting || (auth?.loginMutation?.isPending)}
             >
-              {isSubmitting || (authContext?.loginMutation?.isPending) ? (
+              {isSubmitting || (auth?.loginMutation?.isPending) ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Signing in...
@@ -305,9 +329,9 @@ export default function UserAuthForm({ mode, userType }: UserAuthFormProps) {
             <Button
               type="submit"
               className="w-full"
-              disabled={isSubmitting || (authContext?.registerMutation?.isPending)}
+              disabled={isSubmitting || (auth?.registerMutation?.isPending)}
             >
-              {isSubmitting || (authContext?.registerMutation?.isPending) ? (
+              {isSubmitting || (auth?.registerMutation?.isPending) ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Creating account...
