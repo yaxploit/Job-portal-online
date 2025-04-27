@@ -1,16 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation, useSearch } from "wouter";
 import { JobListing as JobListingType } from "@shared/schema";
 import Navbar from "@/components/layout/navbar";
-import Footer from "@/components/layout/footer";
 import JobCard from "@/components/ui/job-card";
 import JobFilter from "@/components/ui/job-filter";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Search, MapPin, Briefcase, Filter } from "lucide-react";
-import { useAuth } from "@/hooks/use-auth";
+import { AuthContext } from "@/hooks/use-auth";
 import { 
   Sheet, 
   SheetContent, 
@@ -22,14 +21,9 @@ export default function JobListingPage() {
   const search = useSearch();
   const params = new URLSearchParams(search);
   
-  // Safe auth usage with fallback
-  let user = null;
-  try {
-    const auth = useAuth();
-    user = auth.user;
-  } catch (error) {
-    console.log("Auth context not available in JobListingPage, continuing without user data");
-  }
+  // Use useContext directly to safely access auth context
+  const auth = useContext(AuthContext);
+  const user = auth?.user || null;
   
   const [keyword, setKeyword] = useState(params.get('keyword') || '');
   const [location, setLocation2] = useState(params.get('location') || '');
@@ -163,7 +157,14 @@ export default function JobListingPage() {
                   <h3 className="text-lg font-medium text-neutral-900 mb-4">Filter Jobs</h3>
                   <JobFilter 
                     jobType={jobType}
-                    setJobType={setJobType}
+                    setJobType={(value) => {
+                      setJobType(value);
+                      // We need a timeout to ensure the state is updated before searching
+                      setTimeout(() => {
+                        const event = {preventDefault: () => {}} as React.FormEvent;
+                        handleSearch(event);
+                      }, 0);
+                    }}
                     onApplyFilters={() => {
                       handleSearch({preventDefault: () => {}} as React.FormEvent);
                     }}
@@ -181,7 +182,14 @@ export default function JobListingPage() {
                 <h3 className="text-lg font-medium text-neutral-900 mb-4">Filter Jobs</h3>
                 <JobFilter 
                   jobType={jobType}
-                  setJobType={setJobType}
+                  setJobType={(value) => {
+                    setJobType(value);
+                    // We need a timeout to ensure the state is updated before searching
+                    setTimeout(() => {
+                      const event = {preventDefault: () => {}} as React.FormEvent;
+                      handleSearch(event);
+                    }, 0);
+                  }}
                   onApplyFilters={() => {
                     handleSearch({preventDefault: () => {}} as React.FormEvent);
                   }}
@@ -236,7 +244,6 @@ export default function JobListingPage() {
           </div>
         </div>
       </div>
-      <Footer />
     </div>
   );
 }
