@@ -8,7 +8,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import Navbar from "@/components/layout/navbar";
 import Footer from "@/components/layout/footer";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import ApplicationForm from "@/components/jobs/application-form";
 import {
   Card,
   CardContent,
@@ -179,44 +179,9 @@ export default function JobDetail() {
                           </Button>
                         </div>
                       ) : user?.userType === "seeker" ? (
-                        <Dialog open={applicationDialogOpen} onOpenChange={setApplicationDialogOpen}>
-                          <DialogTrigger asChild>
-                            <Button>Apply Now</Button>
-                          </DialogTrigger>
-                          <DialogContent>
-                            <DialogHeader>
-                              <DialogTitle>Apply to {job.title}</DialogTitle>
-                              <DialogDescription>
-                                Submit your application for this position at {job.employerName || "Company Name"}
-                              </DialogDescription>
-                            </DialogHeader>
-                            <div className="space-y-4 py-4">
-                              <div>
-                                <h4 className="text-sm font-medium mb-2">Cover Letter (Optional)</h4>
-                                <Textarea 
-                                  placeholder="Tell the employer why you're a good fit for this position..."
-                                  value={coverLetter}
-                                  onChange={(e) => setCoverLetter(e.target.value)}
-                                  rows={6}
-                                />
-                              </div>
-                            </div>
-                            <DialogFooter>
-                              <Button 
-                                variant="outline" 
-                                onClick={() => setApplicationDialogOpen(false)}
-                              >
-                                Cancel
-                              </Button>
-                              <Button 
-                                onClick={handleApply} 
-                                disabled={applyMutation.isPending}
-                              >
-                                {applyMutation.isPending ? "Submitting..." : "Submit Application"}
-                              </Button>
-                            </DialogFooter>
-                          </DialogContent>
-                        </Dialog>
+                        <Button onClick={() => setApplicationDialogOpen(true)}>
+                          Apply Now
+                        </Button>
                       ) : (
                         <Button onClick={() => setLocation("/auth")}>
                           Sign in to Apply
@@ -258,11 +223,12 @@ export default function JobDetail() {
                     Back to Dashboard
                   </Button>
                 ) : user?.userType === "seeker" ? (
-                  <Dialog open={applicationDialogOpen} onOpenChange={setApplicationDialogOpen}>
-                    <DialogTrigger asChild>
-                      <Button size="lg">Apply for this Position</Button>
-                    </DialogTrigger>
-                  </Dialog>
+                  <Button 
+                    size="lg" 
+                    onClick={() => setApplicationDialogOpen(true)}
+                  >
+                    Apply for this Position
+                  </Button>
                 ) : (
                   <Button 
                     size="lg"
@@ -291,6 +257,17 @@ export default function JobDetail() {
         </div>
       </div>
       <Footer />
+      
+      {/* Add the ApplicationForm component */}
+      {job && (
+        <ApplicationForm
+          job={job}
+          isOpen={applicationDialogOpen}
+          onClose={() => setApplicationDialogOpen(false)}
+          onSubmit={handleApply}
+          isSubmitting={applyMutation.isPending}
+        />
+      )}
     </div>
   );
 }
