@@ -7,6 +7,7 @@ import React, { useEffect } from "react";
 import HomePage from "@/pages/home-page";
 import AuthPage from "@/pages/auth-page";
 import NotFound from "@/pages/not-found";
+import { AuthProvider } from "@/hooks/use-auth";
 
 // Import these modules directly for initialization
 import { initLocalAuth } from "@/lib/local-auth";
@@ -14,6 +15,7 @@ import { initLocalJobs } from "@/lib/local-jobs";
 
 // Lazy load pages
 const JobsPage = React.lazy(() => import("@/pages/jobs"));
+const JobDetail = React.lazy(() => import("@/pages/jobs/job-detail"));
 const AdminDashboard = React.lazy(() => import("@/pages/admin"));
 
 function Router() {
@@ -21,8 +23,13 @@ function Router() {
     <Switch>
       <Route path="/" component={HomePage} />
       <Route path="/auth" component={AuthPage} />
+      <Route path="/jobs/:id">
+        <React.Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading job details...</div>}>
+          <JobDetail />
+        </React.Suspense>
+      </Route>
       <Route path="/jobs">
-        <React.Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+        <React.Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading jobs...</div>}>
           <JobsPage />
         </React.Suspense>
       </Route>
@@ -52,12 +59,14 @@ function App() {
   return (
     <ThemeProvider attribute="class" defaultTheme="light">
       <TooltipProvider>
-        <Toaster />
-        <div className="flex flex-col min-h-screen">
-          <div className="flex-grow">
-            <Router />
+        <AuthProvider>
+          <Toaster />
+          <div className="flex flex-col min-h-screen">
+            <div className="flex-grow">
+              <Router />
+            </div>
           </div>
-        </div>
+        </AuthProvider>
       </TooltipProvider>
     </ThemeProvider>
   );
