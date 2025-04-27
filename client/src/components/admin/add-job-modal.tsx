@@ -12,8 +12,12 @@ export default function AddJobModal({ isOpen, onClose, onAddJob }: AddJobModalPr
   const [company, setCompany] = useState("");
   const [location, setLocation] = useState("");
   const [jobType, setJobType] = useState("Full-time");
-  const [salary, setSalary] = useState("");
+  const [salaryMin, setSalaryMin] = useState("");
+  const [salaryMax, setSalaryMax] = useState("");
   const [description, setDescription] = useState("");
+  const [requirements, setRequirements] = useState("");
+  const [responsibilities, setResponsibilities] = useState("");
+  const [skills, setSkills] = useState("");
   const [error, setError] = useState("");
   
   const resetForm = () => {
@@ -21,8 +25,12 @@ export default function AddJobModal({ isOpen, onClose, onAddJob }: AddJobModalPr
     setCompany("");
     setLocation("");
     setJobType("Full-time");
-    setSalary("");
+    setSalaryMin("");
+    setSalaryMax("");
     setDescription("");
+    setRequirements("");
+    setResponsibilities("");
+    setSkills("");
     setError("");
   };
   
@@ -30,10 +38,30 @@ export default function AddJobModal({ isOpen, onClose, onAddJob }: AddJobModalPr
     e.preventDefault();
     
     // Basic validation
-    if (!title || !company || !location || !jobType || !salary) {
-      setError("All fields are required");
+    if (!title || !company || !location || !jobType || !salaryMin || !salaryMax) {
+      setError("All required fields must be filled");
       return;
     }
+    
+    // Validate salary
+    const minSalary = parseInt(salaryMin, 10);
+    const maxSalary = parseInt(salaryMax, 10);
+    
+    if (isNaN(minSalary) || isNaN(maxSalary)) {
+      setError("Salary must be a valid number");
+      return;
+    }
+    
+    if (minSalary >= maxSalary) {
+      setError("Minimum salary must be less than maximum salary");
+      return;
+    }
+    
+    // Format salary for display
+    const formattedSalary = `₹${parseInt(salaryMin).toLocaleString()} - ₹${parseInt(salaryMax).toLocaleString()}`;
+    
+    // Process skills (convert comma-separated string to array)
+    const skillsArray = skills.split(',').map(skill => skill.trim()).filter(skill => skill);
     
     // Create new job
     const newJob = {
@@ -42,8 +70,13 @@ export default function AddJobModal({ isOpen, onClose, onAddJob }: AddJobModalPr
       company,
       location,
       type: jobType,
-      salary,
+      salary: formattedSalary,
+      salaryMin: minSalary,
+      salaryMax: maxSalary,
       description,
+      requirements,
+      responsibilities,
+      skills: skillsArray,
       createdAt: "Just now",
       postedAt: new Date().toISOString(),
       isActive: true
@@ -141,31 +174,88 @@ export default function AddJobModal({ isOpen, onClose, onAddJob }: AddJobModalPr
             </div>
             
             <div>
-              <label htmlFor="salary" className="block text-sm font-medium text-gray-700 mb-1">
-                Salary Range*
+              <label htmlFor="salaryMin" className="block text-sm font-medium text-gray-700 mb-1">
+                Minimum Salary (₹)*
               </label>
               <input
-                id="salary"
-                type="text"
-                value={salary}
-                onChange={(e) => setSalary(e.target.value)}
+                id="salaryMin"
+                type="number"
+                value={salaryMin}
+                onChange={(e) => setSalaryMin(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="e.g. ₹8,00,000 - ₹15,00,000"
+                placeholder="e.g. 800000"
+              />
+            </div>
+            
+            <div>
+              <label htmlFor="salaryMax" className="block text-sm font-medium text-gray-700 mb-1">
+                Maximum Salary (₹)*
+              </label>
+              <input
+                id="salaryMax"
+                type="number"
+                value={salaryMax}
+                onChange={(e) => setSalaryMax(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="e.g. 1500000"
               />
             </div>
             
             <div className="md:col-span-2">
               <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-                Job Description
+                Job Description*
               </label>
               <textarea
                 id="description"
-                rows={6}
+                rows={4}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Enter job description, requirements, and other details..."
+                placeholder="Enter a detailed description of the job role..."
               />
+            </div>
+            
+            <div className="md:col-span-2">
+              <label htmlFor="requirements" className="block text-sm font-medium text-gray-700 mb-1">
+                Requirements
+              </label>
+              <textarea
+                id="requirements"
+                rows={3}
+                value={requirements}
+                onChange={(e) => setRequirements(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Required qualifications, experience, skills, etc."
+              />
+            </div>
+            
+            <div className="md:col-span-2">
+              <label htmlFor="responsibilities" className="block text-sm font-medium text-gray-700 mb-1">
+                Responsibilities
+              </label>
+              <textarea
+                id="responsibilities"
+                rows={3}
+                value={responsibilities}
+                onChange={(e) => setResponsibilities(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Key duties and responsibilities for this position..."
+              />
+            </div>
+            
+            <div className="md:col-span-2">
+              <label htmlFor="skills" className="block text-sm font-medium text-gray-700 mb-1">
+                Skills (comma-separated)
+              </label>
+              <input
+                id="skills"
+                type="text"
+                value={skills}
+                onChange={(e) => setSkills(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="e.g. React, JavaScript, HTML, CSS"
+              />
+              <span className="text-xs text-gray-500 mt-1 block">Enter skills separated by commas</span>
             </div>
           </div>
           

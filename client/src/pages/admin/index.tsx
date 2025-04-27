@@ -71,46 +71,25 @@ export default function AdminDashboard() {
     const storedUsers = JSON.parse(localStorage.getItem('users') || '[]');
     setUsers(storedUsers);
     
-    // Load jobs data (we'll use the sample data from jobs page)
-    const sampleJobs = [
-      {
-        id: 1,
-        title: "Frontend Developer",
-        company: "TechCorp",
-        location: "Mumbai, India",
-        salary: "₹8,00,000 - ₹15,00,000",
-        type: "Full-time",
-        createdAt: "2 days ago"
-      },
-      {
-        id: 2,
-        title: "UI/UX Designer",
-        company: "DesignHub",
-        location: "Bangalore, India",
-        salary: "₹7,00,000 - ₹12,00,000",
-        type: "Full-time",
-        createdAt: "1 day ago"
-      },
-      {
-        id: 3,
-        title: "React Native Developer",
-        company: "MobileApps Inc",
-        location: "Delhi, India",
-        salary: "₹10,00,000 - ₹18,00,000",
-        type: "Full-time",
-        createdAt: "Just now"
-      },
-      {
-        id: 4,
-        title: "Data Analyst",
-        company: "DataCorp",
-        location: "Hyderabad, India",
-        salary: "₹6,00,000 - ₹9,00,000",
-        type: "Part-time",
-        createdAt: "3 days ago"
-      },
-    ];
-    setJobs(sampleJobs);
+    // Load jobs data from localStorage
+    const storedJobs = JSON.parse(localStorage.getItem('jobnexus_jobs') || '[]');
+    
+    // Map the job data to the format we need for the admin panel
+    const formattedJobs = storedJobs.map((job: any) => ({
+      id: job.id,
+      title: job.title,
+      company: job.company,
+      location: job.location,
+      salary: `₹${job.salaryMin.toLocaleString()} - ₹${job.salaryMax.toLocaleString()}`,
+      type: job.jobType,
+      createdAt: new Date(job.postedAt).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      })
+    }));
+    
+    setJobs(formattedJobs);
     setIsLoading(false);
   }, [setLocation]);
 
@@ -134,6 +113,16 @@ export default function AdminDashboard() {
     if (confirm('Are you sure you want to delete this job?')) {
       const updatedJobs = jobs.filter(job => job.id !== jobId);
       setJobs(updatedJobs);
+      
+      // Update localStorage as well to persist the deletion
+      const storedJobs = JSON.parse(localStorage.getItem('jobnexus_jobs') || '[]');
+      const updatedStoredJobs = storedJobs.filter((job: any) => job.id !== jobId);
+      localStorage.setItem('jobnexus_jobs', JSON.stringify(updatedStoredJobs));
+      
+      toast({
+        title: "Job deleted",
+        description: "The job has been successfully deleted.",
+      });
     }
   };
   
@@ -153,7 +142,32 @@ export default function AdminDashboard() {
   const handleAddJob = (newJob: any) => {
     const updatedJobs = [...jobs, newJob];
     setJobs(updatedJobs);
-    // In a real app, we would also update localStorage or DB
+    
+    // Get the current jobs from localStorage
+    const storedJobs = JSON.parse(localStorage.getItem('jobnexus_jobs') || '[]');
+    
+    // Create a complete job object compatible with our schema
+    const jobToStore = {
+      id: storedJobs.length > 0 ? Math.max(...storedJobs.map((job: any) => job.id)) + 1 : 1,
+      title: newJob.title,
+      company: newJob.company,
+      location: newJob.location,
+      jobType: newJob.type,
+      description: newJob.description || "No description provided",
+      salaryMin: parseInt(newJob.salary.split(' - ')[0].replace(/[₹,]/g, ''), 10) || 0,
+      salaryMax: parseInt(newJob.salary.split(' - ')[1].replace(/[₹,]/g, ''), 10) || 0,
+      skills: [],
+      requirements: "",
+      responsibilities: "",
+      postedAt: new Date().toISOString(),
+      employerId: 0, // Admin posted job
+      status: 'OPEN',
+      isActive: true
+    };
+    
+    // Update localStorage
+    localStorage.setItem('jobnexus_jobs', JSON.stringify([...storedJobs, jobToStore]));
+    
     toast({
       title: "Job added successfully",
       description: `${newJob.title} at ${newJob.company} has been posted.`,
