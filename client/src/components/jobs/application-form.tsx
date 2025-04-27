@@ -29,7 +29,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { FileText, User, Briefcase, Clock, CheckCircle, Loader2 } from "lucide-react";
+import { FileText, User, Briefcase, Clock, CheckCircle, Loader2, Building } from "lucide-react";
 import { JobListing } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 
@@ -132,6 +132,19 @@ export default function ApplicationForm({
       case 0:
         return (
           <div className="space-y-4">
+            <Card className="bg-blue-50 border-blue-200 mb-4">
+              <CardContent className="p-4">
+                <h3 className="font-medium text-blue-800 mb-2">Applying for: {job.title}</h3>
+                <p className="text-sm text-blue-700 mb-2">
+                  Thank you for your interest in this position. Please provide your contact information to begin the application process.
+                  All fields marked with <span className="text-red-500">*</span> are required.
+                </p>
+                <p className="text-xs text-blue-600">
+                  Your personal information will be handled in accordance with our privacy policy and used only for the purpose of evaluating your application.
+                </p>
+              </CardContent>
+            </Card>
+            
             <div>
               <Label htmlFor="fullName">Full Name <span className="text-red-500">*</span></Label>
               <Input
@@ -431,7 +444,7 @@ export default function ApplicationForm({
   if (!isOpen) return null;
   
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         {isSubmitted ? (
           <div className="py-10 text-center">
@@ -439,13 +452,27 @@ export default function ApplicationForm({
               <CheckCircle className="h-8 w-8 text-green-600" />
             </div>
             <h2 className="text-2xl font-bold mb-2">Application Submitted!</h2>
-            <p className="text-neutral-600 max-w-md mx-auto mb-6">
-              Thank you for applying to {job.title}. 
-              Your application has been received.
+            <p className="text-neutral-600 max-w-md mx-auto mb-4">
+              Thank you for applying to <span className="font-medium">{job.title}</span>. 
+              Your application has been successfully received.
             </p>
+            <Card className="max-w-md mx-auto mb-6 bg-blue-50 border-blue-200">
+              <CardContent className="p-4">
+                <div className="flex items-start">
+                  <Briefcase className="h-5 w-5 text-blue-500 mr-2 mt-0.5" />
+                  <div>
+                    <h4 className="font-medium text-blue-700 mb-1">Message from the Company</h4>
+                    <p className="text-sm text-blue-700">
+                      "Thank you for your interest in this position. Our hiring team will review your application carefully
+                      and reach out to you shortly if your qualifications match our requirements. We appreciate your time and effort!"
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
             <p className="text-sm text-neutral-500 mb-6">
-              The employer will review your application and contact you if there's a match. 
-              You can track your application status in your dashboard.
+              You can track the status of your application in your dashboard. 
+              We'll notify you of any updates to your application status.
             </p>
             <Button onClick={onClose}>Return to Job</Button>
           </div>
