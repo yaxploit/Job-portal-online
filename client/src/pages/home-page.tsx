@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Search, Briefcase, MapPin, Clock, ChevronRight } from "lucide-react";
+import Footer from "@/components/layout/footer";
 
 // Sample job data for demo
 const sampleJobs = [

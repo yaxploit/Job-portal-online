@@ -62,9 +62,7 @@ function App() {
         <AuthProvider>
           <Toaster />
           <div className="flex flex-col min-h-screen">
-            <div className="flex-grow">
-              <Router />
-            </div>
+            <Router />
           </div>
         </AuthProvider>
       </TooltipProvider>
