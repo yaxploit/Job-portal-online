@@ -58,17 +58,19 @@ export default function UserAuthForm({ mode, userType }: UserAuthFormProps) {
   const [authAvailable, setAuthAvailable] = useState(false);
   const [authContext, setAuthContext] = useState<any>(null);
   
-  // Try to get auth context safely - but can't use hooks inside effects
-  try {
-    const auth = useAuth();
-    if (auth) {
-      setAuthContext(auth);
-      setAuthAvailable(true);
+  // Use useEffect to avoid infinite render loops
+  useEffect(() => {
+    try {
+      const auth = useAuth();
+      if (auth) {
+        setAuthContext(auth);
+        setAuthAvailable(true);
+      }
+    } catch (error) {
+      console.log("Auth context not available in UserAuthForm, continuing with limited functionality");
+      setAuthAvailable(false);
     }
-  } catch (error) {
-    console.log("Auth context not available in UserAuthForm, continuing with limited functionality");
-    setAuthAvailable(false);
-  }
+  }, []); // Empty dependency array means this only runs once on mount
 
   // Login form setup
   const loginForm = useForm<LoginFormValues>({

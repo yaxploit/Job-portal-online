@@ -16,8 +16,11 @@ import SeekerProfile from "@/pages/profile/seeker-profile";
 import EmployerProfile from "@/pages/profile/employer-profile";
 import SeekerApplications from "@/pages/applications/seeker-applications";
 import EmployerApplications from "@/pages/applications/employer-applications";
+import AdminLogin from "@/pages/admin/admin-login";
+import AdminDashboard from "@/pages/admin/admin-dashboard";
 import NotFound from "@/pages/not-found";
 import Preloader from "@/components/ui/preloader";
+import Footer from "@/components/layout/footer";
 
 function Router() {
   return (
@@ -38,6 +41,10 @@ function Router() {
       <ProtectedRoute path="/jobs/post" userType="employer" component={PostJob} />
       <ProtectedRoute path="/applications/employer/:jobId" userType="employer" component={EmployerApplications} />
       
+      {/* Admin routes */}
+      <Route path="/admin/login" component={AdminLogin} />
+      <Route path="/admin/dashboard" component={AdminDashboard} />
+      
       {/* Fallback to 404 */}
       <Route component={NotFound} />
     </Switch>
@@ -50,7 +57,12 @@ function App() {
       <TooltipProvider>
         <Preloader />
         <Toaster />
-        <Router />
+        <div className="flex flex-col min-h-screen">
+          <div className="flex-grow">
+            <Router />
+          </div>
+          <Footer />
+        </div>
         <div className="creator-tag animate-fade-in">Created by yaxploit</div>
       </TooltipProvider>
     </ThemeProvider>
