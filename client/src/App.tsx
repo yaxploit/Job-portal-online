@@ -3,7 +3,9 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "next-themes";
 import { useState, useEffect } from "react";
+import { AuthProvider } from "@/hooks/use-auth";
 
+import { ProtectedRoute } from "./lib/protected-route";
 import HomePage from "@/pages/home-page";
 import AuthPage from "@/pages/auth-page";
 import SeekerDashboard from "@/pages/dashboard/seeker-dashboard";
@@ -21,7 +23,23 @@ import NotFound from "@/pages/not-found";
 import Preloader from "@/components/ui/preloader";
 import Footer from "@/components/layout/footer";
 
-// Simplified routing - no auth restrictions for testing
+// Initialize local storage
+const initLocalData = () => {
+  // Initialize local auth data
+  try {
+    import("@/lib/local-auth").then(({ initLocalAuth }) => {
+      initLocalAuth();
+    });
+    
+    // Initialize local jobs data
+    import("@/lib/local-jobs").then(({ initLocalJobs }) => {
+      initLocalJobs();
+    });
+  } catch (error) {
+    console.error("Error initializing local data:", error);
+  }
+};
+
 function Router() {
   return (
     <Switch>
@@ -31,19 +49,19 @@ function Router() {
       <Route path="/jobs/:id" component={JobDetail} />
       
       {/* Seeker routes */}
-      <Route path="/dashboard/seeker" component={SeekerDashboard} />
-      <Route path="/profile/seeker" component={SeekerProfile} />
-      <Route path="/applications/seeker" component={SeekerApplications} />
+      <ProtectedRoute path="/dashboard/seeker" userType="seeker" component={SeekerDashboard} />
+      <ProtectedRoute path="/profile/seeker" userType="seeker" component={SeekerProfile} />
+      <ProtectedRoute path="/applications/seeker" userType="seeker" component={SeekerApplications} />
       
       {/* Employer routes */}
-      <Route path="/dashboard/employer" component={EmployerDashboard} />
-      <Route path="/profile/employer" component={EmployerProfile} />
-      <Route path="/jobs/post" component={PostJob} />
-      <Route path="/applications/employer/:jobId" component={EmployerApplications} />
+      <ProtectedRoute path="/dashboard/employer" userType="employer" component={EmployerDashboard} />
+      <ProtectedRoute path="/profile/employer" userType="employer" component={EmployerProfile} />
+      <ProtectedRoute path="/jobs/post" userType="employer" component={PostJob} />
+      <ProtectedRoute path="/applications/employer/:jobId" userType="employer" component={EmployerApplications} />
       
       {/* Admin routes */}
       <Route path="/admin/login" component={AdminLogin} />
-      <Route path="/admin/dashboard" component={AdminDashboard} />
+      <ProtectedRoute path="/admin/dashboard" userType="admin" component={AdminDashboard} />
       
       {/* Fallback to 404 */}
       <Route component={NotFound} />
@@ -52,21 +70,9 @@ function Router() {
 }
 
 function App() {
-  // Initialize local storage
+  // Initialize data when app loads
   useEffect(() => {
-    // Initialize local auth data
-    try {
-      import("@/lib/local-auth").then(({ initLocalAuth }) => {
-        initLocalAuth();
-      });
-      
-      // Initialize local jobs data
-      import("@/lib/local-jobs").then(({ initLocalJobs }) => {
-        initLocalJobs();
-      });
-    } catch (error) {
-      console.error("Error initializing local data:", error);
-    }
+    initLocalData();
   }, []);
 
   return (
@@ -76,7 +82,9 @@ function App() {
         <Toaster />
         <div className="flex flex-col min-h-screen">
           <div className="flex-grow">
-            <Router />
+            <AuthProvider>
+              <Router />
+            </AuthProvider>
           </div>
           <Footer />
         </div>
