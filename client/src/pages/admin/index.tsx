@@ -764,6 +764,19 @@ export default function AdminDashboard() {
           
         </main>
       </div>
+
+      {/* Modals */}
+      <AddUserModal 
+        isOpen={isAddUserModalOpen}
+        onClose={() => setIsAddUserModalOpen(false)}
+        onAddUser={handleAddUser}
+      />
+      
+      <AddJobModal 
+        isOpen={isAddJobModalOpen}
+        onClose={() => setIsAddJobModalOpen(false)}
+        onAddJob={handleAddJob}
+      />
     </div>
   );
 }
