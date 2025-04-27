@@ -4,13 +4,13 @@ import { JobListing } from "@shared/schema";
 // Local storage key
 const JOBS_KEY = "jobnexus_jobs";
 
-// Helper function to create a properly formatted Date for the database
-function createDate(daysOffset: number = 0): Date {
+// Helper function to create a properly formatted Date string for the database
+function createDate(daysOffset: number = 0): string {
   const date = new Date();
   if (daysOffset !== 0) {
     date.setDate(date.getDate() + daysOffset);
   }
-  return date;
+  return date.toISOString();
 }
 
 // Realistic job data
@@ -20,10 +20,10 @@ const DEFAULT_JOBS: JobListing[] = [
     employerId: 4, // Tech Corp
     title: "Frontend Developer",
     description: "We are looking for a skilled Frontend Developer to join our product team. You will be responsible for building user interfaces using React, working with our designers and backend developers to create seamless user experiences.\n\nRequirements:\n- 3+ years of experience with React.js\n- Strong knowledge of HTML5, CSS3, and JavaScript\n- Experience with state management libraries\n- Familiarity with responsive design and cross-browser compatibility",
-    location: "San Francisco, CA",
+    location: "Bangalore, India",
     jobType: "full-time",
-    salaryMin: 90000,
-    salaryMax: 130000,
+    salaryMin: 1200000,
+    salaryMax: 2000000,
     skills: ["React", "JavaScript", "TypeScript", "HTML", "CSS"],
     applicationDeadline: createDate(30),
     postedAt: createDate(),
@@ -34,13 +34,13 @@ const DEFAULT_JOBS: JobListing[] = [
     employerId: 4, // Tech Corp
     title: "Backend Engineer",
     description: "Tech Corp is seeking a Backend Engineer to develop and maintain our core APIs and services. You'll work with a talented team to build scalable and maintainable systems.\n\nRequirements:\n- Experience with Node.js and Express\n- Knowledge of SQL and NoSQL databases\n- Understanding of RESTful API design principles\n- Experience with microservices architecture is a plus",
-    location: "New York, NY",
+    location: "Mumbai, India",
     jobType: "full-time",
-    salaryMin: 100000,
-    salaryMax: 150000,
+    salaryMin: 1500000,
+    salaryMax: 2500000,
     skills: ["Node.js", "Express", "PostgreSQL", "MongoDB", "RESTful APIs"],
-    applicationDeadline: new Date(new Date().setDate(new Date().getDate() + 45)).toISOString(),
-    postedAt: new Date().toISOString(),
+    applicationDeadline: createDate(45),
+    postedAt: createDate(),
     isActive: true,
   },
   {

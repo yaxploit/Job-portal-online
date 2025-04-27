@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/sheet";
 
 export default function JobListingPage() {
-  const [, setLocation] = useLocation();
+  const [, navigate] = useLocation();
   const search = useSearch();
   const params = new URLSearchParams(search);
   
@@ -26,14 +26,14 @@ export default function JobListingPage() {
   const user = auth?.user || null;
   
   const [keyword, setKeyword] = useState(params.get('keyword') || '');
-  const [location, setLocation2] = useState(params.get('location') || '');
+  const [locationFilter, setLocationFilter] = useState(params.get('location') || '');
   const [jobType, setJobType] = useState(params.get('jobType') || '');
   const [showFilters, setShowFilters] = useState(false);
   
   // Parse the search parameters
   useEffect(() => {
     setKeyword(params.get('keyword') || '');
-    setLocation2(params.get('location') || '');
+    setLocationFilter(params.get('location') || '');
     setJobType(params.get('jobType') || '');
   }, [search, params]);
 
@@ -52,7 +52,7 @@ export default function JobListingPage() {
         // Get filtered jobs
         const filteredJobs = getFilteredJobs({
           keyword,
-          location,
+          location: locationFilter,
           jobType
         });
         
@@ -63,7 +63,7 @@ export default function JobListingPage() {
       console.error("Error loading jobs:", error);
       setIsLoading(false);
     }
-  }, [keyword, location, jobType]);
+  }, [keyword, locationFilter, jobType]);
   
   // Refetch function for consistent API
   const refetch = () => {
@@ -71,7 +71,7 @@ export default function JobListingPage() {
     import("@/lib/local-jobs").then(({ getFilteredJobs }) => {
       const filteredJobs = getFilteredJobs({
         keyword,
-        location,
+        location: locationFilter,
         jobType
       });
       setLocalJobs(filteredJobs);
@@ -85,7 +85,7 @@ export default function JobListingPage() {
     // Update URL with search parameters
     let newSearch = "?";
     if (keyword) newSearch += `keyword=${encodeURIComponent(keyword)}&`;
-    if (location) newSearch += `location=${encodeURIComponent(location)}&`;
+    if (locationFilter) newSearch += `location=${encodeURIComponent(locationFilter)}&`;
     if (jobType) newSearch += `jobType=${encodeURIComponent(jobType)}&`;
     
     // Remove trailing & if exists
@@ -93,15 +93,15 @@ export default function JobListingPage() {
       newSearch = newSearch.slice(0, -1);
     }
     
-    setLocation(`/jobs${newSearch}`);
+    navigate(`/jobs${newSearch}`);
     refetch();
   };
 
   const clearFilters = () => {
     setKeyword('');
-    setLocation2('');
+    setLocationFilter('');
     setJobType('');
-    setLocation('/jobs');
+    navigate('/jobs');
   };
 
   return (
