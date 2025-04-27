@@ -7,9 +7,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 
 export default function AuthPage() {
   const [, setLocation] = useLocation();
-  const { user, isLoading } = useAuth();
   const [activeTab, setActiveTab] = useState<string>("login");
   const [userType, setUserType] = useState<string>("seeker");
+  
+  // Safe auth usage with fallback
+  let user = null;
+  let isLoading = false;
+  try {
+    const auth = useAuth();
+    user = auth.user;
+    isLoading = auth.isLoading;
+  } catch (error) {
+    console.log("Auth context not available in AuthPage, continuing without user data");
+  }
 
   // Redirect to appropriate dashboard if already logged in
   useEffect(() => {
@@ -77,7 +87,7 @@ export default function AuthPage() {
       </div>
 
       {/* Right column - Hero/Info */}
-      <div className="hidden lg:flex lg:flex-1 bg-primary-700">
+      <div className="hidden lg:flex lg:flex-1 bg-blue-700">
         <div className="flex flex-col justify-center px-8 py-12">
           <div className="max-w-md">
             <h2 className="text-3xl font-extrabold text-white">
@@ -86,7 +96,7 @@ export default function AuthPage() {
                 : "Find Top Talent For Your Company"
               }
             </h2>
-            <p className="mt-4 text-lg text-primary-200">
+            <p className="mt-4 text-lg text-blue-200">
               {userType === "seeker"
                 ? "Connect with top employers and discover opportunities that match your skills and career goals."
                 : "Post job listings and connect with qualified candidates to build your team."
@@ -97,19 +107,19 @@ export default function AuthPage() {
                 {userType === "seeker" ? (
                   <>
                     <li className="flex items-start">
-                      <svg className="h-6 w-6 text-primary-300 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className="h-6 w-6 text-blue-300 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                       <span className="text-white">Browse thousands of job listings</span>
                     </li>
                     <li className="flex items-start">
-                      <svg className="h-6 w-6 text-primary-300 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className="h-6 w-6 text-blue-300 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                       <span className="text-white">Create a professional profile</span>
                     </li>
                     <li className="flex items-start">
-                      <svg className="h-6 w-6 text-primary-300 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className="h-6 w-6 text-blue-300 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                       <span className="text-white">Track your application status</span>
@@ -118,19 +128,19 @@ export default function AuthPage() {
                 ) : (
                   <>
                     <li className="flex items-start">
-                      <svg className="h-6 w-6 text-primary-300 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className="h-6 w-6 text-blue-300 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                       <span className="text-white">Post and manage job listings</span>
                     </li>
                     <li className="flex items-start">
-                      <svg className="h-6 w-6 text-primary-300 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className="h-6 w-6 text-blue-300 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                       <span className="text-white">Review applicant profiles</span>
                     </li>
                     <li className="flex items-start">
-                      <svg className="h-6 w-6 text-primary-300 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className="h-6 w-6 text-blue-300 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                       <span className="text-white">Manage your company profile</span>

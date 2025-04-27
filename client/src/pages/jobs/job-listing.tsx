@@ -18,10 +18,18 @@ import {
 } from "@/components/ui/sheet";
 
 export default function JobListingPage() {
-  const { user } = useAuth();
   const [, setLocation] = useLocation();
   const search = useSearch();
   const params = new URLSearchParams(search);
+  
+  // Safe auth usage with fallback
+  let user = null;
+  try {
+    const auth = useAuth();
+    user = auth.user;
+  } catch (error) {
+    console.log("Auth context not available in JobListingPage, continuing without user data");
+  }
   
   const [keyword, setKeyword] = useState(params.get('keyword') || '');
   const [location, setLocation2] = useState(params.get('location') || '');

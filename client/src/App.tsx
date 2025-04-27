@@ -2,6 +2,7 @@ import { Switch, Route } from "wouter";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "next-themes";
+import { useState, useEffect } from "react";
 
 import { ProtectedRoute } from "./lib/protected-route";
 import HomePage from "@/pages/home-page";
@@ -16,6 +17,7 @@ import EmployerProfile from "@/pages/profile/employer-profile";
 import SeekerApplications from "@/pages/applications/seeker-applications";
 import EmployerApplications from "@/pages/applications/employer-applications";
 import NotFound from "@/pages/not-found";
+import Preloader from "@/components/ui/preloader";
 
 function Router() {
   return (
@@ -46,8 +48,10 @@ function App() {
   return (
     <ThemeProvider attribute="class" defaultTheme="light">
       <TooltipProvider>
+        <Preloader />
         <Toaster />
         <Router />
+        <div className="creator-tag animate-fade-in">Created by yaxploit</div>
       </TooltipProvider>
     </ThemeProvider>
   );
