@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useAuth } from '@/hooks/use-auth';
@@ -7,24 +8,26 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-/**
- * This page handles job posting for employers.
- * It includes authorization checks to ensure only employers can access it.
- */
 export default function PostJobPage() {
   const { user, isLoading } = useAuth();
   const [, navigate] = useLocation();
 
   // Check if user is authorized based on user type stored in localStorage
   const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-  const isEmployer = currentUser && currentUser.userType === 'employer';
+  const isEmployer = currentUser?.userType === 'employer';
   
-  // Redirect non-authenticated or non-employer users
   useEffect(() => {
+    // Redirect if not authenticated or loading
     if (!isLoading && !user) {
       navigate('/auth');
+      return;
     }
-  }, [isLoading, user, navigate]);
+    
+    // Redirect if not an employer
+    if (!isLoading && user && !isEmployer) {
+      navigate('/dashboard/seeker');
+    }
+  }, [isLoading, user, navigate, isEmployer]);
 
   if (isLoading) {
     return (
