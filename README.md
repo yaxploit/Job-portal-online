@@ -147,7 +147,8 @@ the project follows a modern full-stack architecture with a clear separation of 
 git clone https://github.com/yaxploit/Job-portal-online
 ```
 ##Install dependencies
- ```npm install
+ ```
+ npm install
  npx update-browserslist-db@latest
  npm install cross-env --save-dev
 ```
