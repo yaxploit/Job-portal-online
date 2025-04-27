@@ -16,8 +16,7 @@ export default function PostJobPage() {
   const [, navigate] = useLocation();
 
   // Check if user is authorized (is an employer)
-  // In a real app, you would check the user role from the database
-  const isEmployer = user && user.username === 'techcorp'; // Hardcoded for demo purposes
+  const isEmployer = user && user.userType === 'employer';
   
   // Redirect non-authenticated or non-employer users
   useEffect(() => {
@@ -44,7 +43,7 @@ export default function PostJobPage() {
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Access Denied</AlertTitle>
             <AlertDescription>
-              Only employers can post job listings. If you are an employer, please make sure you are using an employer account (techcorp).
+              Only employers can post job listings. If you are an employer, please make sure you are using an employer account.
             </AlertDescription>
           </Alert>
           <div className="flex justify-center">
