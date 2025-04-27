@@ -15,8 +15,9 @@ export default function PostJobPage() {
   const { user, isLoading } = useAuth();
   const [, navigate] = useLocation();
 
-  // Check if user is authorized (is an employer)
-  const isEmployer = user && user.userType === 'employer';
+  // Check if user is authorized based on user type stored in localStorage
+  const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+  const isEmployer = currentUser && currentUser.userType === 'employer';
   
   // Redirect non-authenticated or non-employer users
   useEffect(() => {

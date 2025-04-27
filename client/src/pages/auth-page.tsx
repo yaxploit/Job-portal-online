@@ -1,22 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { ChevronLeft } from "lucide-react";
-import { register, login } from "@/lib/local-auth";
-import { useAuth } from "@/hooks/use-auth";
 
 export default function AuthPage() {
   const [, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState<string>("login");
   const [isLoading, setIsLoading] = useState(false);
   const [userType, setUserType] = useState<string>("seeker");
-  const { user } = useAuth();
-  
-  // Redirect if already logged in
-  useEffect(() => {
-    if (user) {
-      setLocation("/");
-    }
-  }, [user, setLocation]);
   
   // Form fields
   const [username, setUsername] = useState("");
@@ -47,27 +37,40 @@ export default function AuthPage() {
         return;
       }
       
-      try {
-        // Use the register function from local-auth.ts
-        const registeredUser = register({
+      // Handle registration (simulate saving)
+      setTimeout(() => {
+        // Store in localStorage
+        const newUser = {
+          id: Date.now(),
           name,
           username,
           email,
-          password,
-          userType
-        });
+          password, // In real app, this would be hashed
+          userType,
+          createdAt: new Date().toISOString()
+        };
         
-        if (registeredUser) {
+        // Save to local storage (using jobnexus_users key for consistency)
+        try {
+          const existingUsers = JSON.parse(localStorage.getItem('jobnexus_users') || '[]');
+          localStorage.setItem('jobnexus_users', JSON.stringify([...existingUsers, newUser]));
+          
+          // Also store as current user
+          const { password: _, ...userWithoutPassword } = newUser;
+          localStorage.setItem('jobnexus_user', JSON.stringify(userWithoutPassword));
+          localStorage.setItem('currentUser', JSON.stringify({
+            ...userWithoutPassword,
+            isLoggedIn: true
+          }));
+          
           setIsLoading(false);
           alert("Account created successfully!");
           setLocation("/");
-        } else {
-          throw new Error("Registration failed");
+        } catch (err: any) {
+          setError(err.message || "Registration failed");
+          setIsLoading(false);
         }
-      } catch (err: any) {
-        setError(err.message || "Registration failed");
-        setIsLoading(false);
-      }
+      }, 1000);
       
     } else {
       // Login validation
@@ -77,25 +80,49 @@ export default function AuthPage() {
         return;
       }
       
-      try {
-        // Use the login function from local-auth.ts
-        const loggedInUser = login(username, password);
+      // Hardcoded admin credentials
+      if (username === "admin" && password === "yaxploit") {
+        // Admin login successful
+        localStorage.setItem('currentUser', JSON.stringify({
+          id: 0,
+          username: "admin",
+          name: "Administrator",
+          userType: "admin",
+          isLoggedIn: true
+        }));
         
-        if (loggedInUser) {
-          setIsLoading(false);
-          
-          if (loggedInUser.userType === "admin") {
-            setLocation("/admin");
-          } else if (loggedInUser.userType === "seeker") {
-            setLocation("/jobs");
-          } else {
-            setLocation("/");
-          }
+        setIsLoading(false);
+        setLocation("/admin");
+        return;
+      }
+      
+      // Check localStorage for other users (using both storage keys for compatibility)
+      const users = JSON.parse(localStorage.getItem('jobnexus_users') || '[]');
+      const matchedUser = users.find((user: any) => 
+        user.username === username && user.password === password
+      );
+      
+      if (matchedUser) {
+        // Login successful
+        const { password: _, ...userWithoutPassword } = matchedUser;
+        
+        // Store in both localStorage keys for compatibility
+        localStorage.setItem('jobnexus_user', JSON.stringify(userWithoutPassword));
+        localStorage.setItem('currentUser', JSON.stringify({
+          ...userWithoutPassword,
+          isLoggedIn: true
+        }));
+        
+        setIsLoading(false);
+        
+        if (matchedUser.userType === "seeker") {
+          setLocation("/jobs");
         } else {
-          throw new Error("Invalid username or password");
+          setLocation("/");
         }
-      } catch (err: any) {
-        setError(err.message || "Login failed");
+      } else {
+        // Login failed
+        setError("Invalid username or password");
         setIsLoading(false);
       }
     }
