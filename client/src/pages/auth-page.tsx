@@ -1,12 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { ChevronLeft } from "lucide-react";
+import { register, login } from "@/lib/local-auth";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function AuthPage() {
   const [, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState<string>("login");
   const [isLoading, setIsLoading] = useState(false);
   const [userType, setUserType] = useState<string>("seeker");
+  const { user } = useAuth();
+  
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      setLocation("/");
+    }
+  }, [user, setLocation]);
   
   // Form fields
   const [username, setUsername] = useState("");
@@ -37,26 +47,27 @@ export default function AuthPage() {
         return;
       }
       
-      // Handle registration (simulate saving)
-      setTimeout(() => {
-        // Store in localStorage
-        const newUser = {
-          id: Date.now(),
+      try {
+        // Use the register function from local-auth.ts
+        const registeredUser = register({
           name,
           username,
           email,
-          password, // In real app, this would be hashed
+          password,
           userType
-        };
+        });
         
-        // Save to local storage
-        const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
-        localStorage.setItem('users', JSON.stringify([...existingUsers, newUser]));
-        
+        if (registeredUser) {
+          setIsLoading(false);
+          alert("Account created successfully!");
+          setLocation("/");
+        } else {
+          throw new Error("Registration failed");
+        }
+      } catch (err: any) {
+        setError(err.message || "Registration failed");
         setIsLoading(false);
-        alert("Account created successfully!");
-        setLocation("/");
-      }, 1000);
+      }
       
     } else {
       // Login validation
@@ -66,45 +77,25 @@ export default function AuthPage() {
         return;
       }
       
-      // Hardcoded admin credentials
-      if (username === "admin" && password === "yaxploit") {
-        // Admin login successful
-        localStorage.setItem('currentUser', JSON.stringify({
-          id: 0,
-          username: "admin",
-          name: "Administrator",
-          userType: "admin",
-          isLoggedIn: true
-        }));
+      try {
+        // Use the login function from local-auth.ts
+        const loggedInUser = login(username, password);
         
-        setIsLoading(false);
-        setLocation("/admin");
-        return;
-      }
-      
-      // Check localStorage for other users
-      const users = JSON.parse(localStorage.getItem('users') || '[]');
-      const matchedUser = users.find((user: any) => 
-        user.username === username && user.password === password
-      );
-      
-      if (matchedUser) {
-        // Login successful
-        localStorage.setItem('currentUser', JSON.stringify({
-          ...matchedUser,
-          isLoggedIn: true
-        }));
-        
-        setIsLoading(false);
-        
-        if (matchedUser.userType === "seeker") {
-          setLocation("/jobs");
+        if (loggedInUser) {
+          setIsLoading(false);
+          
+          if (loggedInUser.userType === "admin") {
+            setLocation("/admin");
+          } else if (loggedInUser.userType === "seeker") {
+            setLocation("/jobs");
+          } else {
+            setLocation("/");
+          }
         } else {
-          setLocation("/");
+          throw new Error("Invalid username or password");
         }
-      } else {
-        // Login failed
-        setError("Invalid username or password");
+      } catch (err: any) {
+        setError(err.message || "Login failed");
         setIsLoading(false);
       }
     }
