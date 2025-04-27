@@ -250,7 +250,10 @@ export default function JobDetail() {
                 ) : user?.userType === "seeker" ? (
                   <Button 
                     size="lg" 
-                    onClick={() => setApplicationDialogOpen(true)}
+                    onClick={() => {
+                      console.log("Apply button clicked, setting dialog open to true");
+                      setApplicationDialogOpen(true);
+                    }}
                   >
                     Apply for this Position
                   </Button>
@@ -283,7 +286,7 @@ export default function JobDetail() {
       </div>
       <Footer />
       
-      {/* Add the ApplicationForm component */}
+      {/* Application Form */}
       {job && (
         <ApplicationForm
           job={job}

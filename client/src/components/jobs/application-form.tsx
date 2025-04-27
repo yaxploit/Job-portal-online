@@ -443,8 +443,10 @@ export default function ApplicationForm({
   
   if (!isOpen) return null;
   
+  console.log("ApplicationForm rendered with isOpen:", isOpen);
+
   return (
-    <Dialog open={true} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         {isSubmitted ? (
           <div className="py-10 text-center">
