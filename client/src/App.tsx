@@ -2,22 +2,29 @@ import { Switch, Route } from "wouter";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "next-themes";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 
 import HomePage from "@/pages/home-page";
 import AuthPage from "@/pages/auth-page";
 import NotFound from "@/pages/not-found";
-import Footer from "@/components/layout/footer";
 
 // Import these modules directly for initialization
 import { initLocalAuth } from "@/lib/local-auth";
 import { initLocalJobs } from "@/lib/local-jobs";
+
+// Lazy load job pages
+const JobsPage = React.lazy(() => import("@/pages/jobs"));
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={HomePage} />
       <Route path="/auth" component={AuthPage} />
+      <Route path="/jobs">
+        <React.Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+          <JobsPage />
+        </React.Suspense>
+      </Route>
       <Route path="/:rest*" component={NotFound} />
     </Switch>
   );
