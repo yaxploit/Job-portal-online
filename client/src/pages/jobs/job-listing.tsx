@@ -82,26 +82,45 @@ export default function JobListingPage() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Update URL with search parameters
-    let newSearch = "?";
-    if (keyword) newSearch += `keyword=${encodeURIComponent(keyword)}&`;
-    if (locationFilter) newSearch += `location=${encodeURIComponent(locationFilter)}&`;
-    if (jobType) newSearch += `jobType=${encodeURIComponent(jobType)}&`;
-    
-    // Remove trailing & if exists
-    if (newSearch.endsWith("&")) {
-      newSearch = newSearch.slice(0, -1);
-    }
-    
-    navigate(`/jobs${newSearch}`);
+    // Don't update URL to prevent actual page navigation
+    // Instead, just refetch with the current filter values
     refetch();
+    
+    // Optional: Update URL without reloading
+    const updateUrl = () => {
+      // Build query string
+      let newSearch = "?";
+      if (keyword) newSearch += `keyword=${encodeURIComponent(keyword)}&`;
+      if (locationFilter) newSearch += `location=${encodeURIComponent(locationFilter)}&`;
+      if (jobType) newSearch += `jobType=${encodeURIComponent(jobType)}&`;
+      
+      // Remove trailing & if exists
+      if (newSearch.endsWith("&")) {
+        newSearch = newSearch.slice(0, -1);
+      }
+      
+      // Replace current URL without reloading
+      window.history.replaceState(
+        {}, 
+        '', 
+        window.location.pathname + newSearch
+      );
+    };
+    
+    // Update URL without triggering reload
+    updateUrl();
   };
 
   const clearFilters = () => {
     setKeyword('');
     setLocationFilter('');
     setJobType('');
-    navigate('/jobs');
+    
+    // Update URL without causing page navigation
+    window.history.replaceState({}, '', '/jobs');
+    
+    // Refetch with cleared filters
+    setTimeout(() => refetch(), 0);
   };
 
   return (
