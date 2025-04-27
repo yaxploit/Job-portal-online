@@ -10,29 +10,35 @@ const JobCard = ({ job }: { job: any }) => {
       <div className="flex justify-between">
         <div>
           <h3 className="text-lg font-semibold text-gray-900">{job.title}</h3>
-          <p className="text-gray-600 mt-1">{job.company}</p>
+          <p className="text-gray-600 mt-1">{job.company || 'Unknown Company'}</p>
         </div>
         <div className="w-12 h-12 bg-blue-50 rounded-md flex items-center justify-center text-blue-600 font-bold">
-          {job.company.charAt(0)}
+          {(job.company && job.company.charAt(0)) || 'C'}
         </div>
       </div>
       
       <div className="mt-4 flex items-center text-gray-500 text-sm">
         <MapPin className="h-4 w-4 mr-1" />
-        <span>{job.location}</span>
+        <span>{job.location || 'Remote'}</span>
       </div>
       
       <div className="mt-4 flex flex-wrap gap-2">
         <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-medium">
-          {job.type}
+          {job.type || job.jobType || 'Full-time'}
         </span>
         <span className="px-3 py-1 bg-green-50 text-green-700 rounded-full text-xs font-medium">
-          {job.salary}
+          {job.salary || (job.salaryMin && job.salaryMax ? `₹${job.salaryMin/100000} - ₹${job.salaryMax/100000} LPA` : '₹Competitive')}
         </span>
       </div>
       
       <div className="mt-6 flex justify-between items-center">
-        <span className="text-xs text-gray-500">Posted {job.createdAt}</span>
+        <span className="text-xs text-gray-500">
+          Posted {job.createdAt || job.postedAt ? 
+            (typeof job.createdAt === 'string' ? job.createdAt : 
+             typeof job.postedAt === 'string' ? 
+               new Date(job.postedAt).toLocaleDateString('en-IN') : 'Recently') : 
+            'Recently'}
+        </span>
         <Link href={`/jobs/${job.id}`} className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium">
           Apply Now
         </Link>
