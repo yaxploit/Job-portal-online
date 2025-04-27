@@ -17,6 +17,7 @@ import { initLocalJobs } from "@/lib/local-jobs";
 const JobsPage = React.lazy(() => import("@/pages/jobs"));
 const JobDetail = React.lazy(() => import("@/pages/jobs/simple-job-detail"));
 const AdminDashboard = React.lazy(() => import("@/pages/admin"));
+const PostJobPage = React.lazy(() => import("@/pages/employer/post-job"));
 
 function Router() {
   return (
@@ -36,6 +37,11 @@ function Router() {
       <Route path="/admin">
         <React.Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
           <AdminDashboard />
+        </React.Suspense>
+      </Route>
+      <Route path="/employer/post-job">
+        <React.Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+          <PostJobPage />
         </React.Suspense>
       </Route>
       <Route path="/:rest*" component={NotFound} />
