@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth } from "./auth";
+import { seedDatabase } from "./seed";
 import { 
   insertJobListingSchema, 
   insertJobApplicationSchema,
@@ -13,6 +14,14 @@ import { z } from "zod";
 export async function registerRoutes(app: Express): Promise<Server> {
   // Set up authentication routes (/api/register, /api/login, /api/logout, /api/user)
   setupAuth(app);
+  
+  // Seed the database with sample data
+  try {
+    await seedDatabase();
+    console.log("Database seeded successfully");
+  } catch (error) {
+    console.error("Error seeding database:", error);
+  }
 
   // Job Listings Routes
   app.get("/api/jobs", async (req, res) => {

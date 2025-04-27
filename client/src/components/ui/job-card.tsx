@@ -1,9 +1,10 @@
-import { useAuth } from "@/hooks/use-auth";
 import { JobListing } from "@shared/schema";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { MapPin, DollarSign, Calendar } from "lucide-react";
+import { useContext } from "react";
+import { AuthContext } from "@/hooks/use-auth";
 
 interface JobCardProps {
   job: JobListing;
@@ -11,7 +12,9 @@ interface JobCardProps {
 }
 
 export default function JobCard({ job, showApplyButton = true }: JobCardProps) {
-  const { user } = useAuth();
+  // Use useContext directly to avoid error when context is null
+  const auth = useContext(AuthContext);
+  const user = auth?.user || null;
   const [, setLocation] = useLocation();
 
   const handleApplyClick = (e: React.MouseEvent) => {
@@ -50,7 +53,9 @@ export default function JobCard({ job, showApplyButton = true }: JobCardProps) {
 
   // Generate company logo placeholder if no image
   const getCompanyInitials = () => {
-    const name = job.employerName || "Company";
+    // employerName might be added by the server but not in the schema
+    // so we need to use this approach to avoid TypeScript errors
+    const name = (job as any).employerName || "Company";
     return name.substring(0, 2).toUpperCase();
   };
 
@@ -63,7 +68,7 @@ export default function JobCard({ job, showApplyButton = true }: JobCardProps) {
         <div className="flex justify-between">
           <div>
             <h3 className="text-lg font-semibold text-neutral-900 mb-1">{job.title}</h3>
-            <p className="text-neutral-600 text-sm mb-3">{job.employerName || "Company Name"}</p>
+            <p className="text-neutral-600 text-sm mb-3">{(job as any).employerName || "Company Name"}</p>
           </div>
           <div className="h-12 w-12 bg-neutral-100 rounded-md flex items-center justify-center">
             <span className="text-neutral-700 font-bold text-sm">{getCompanyInitials()}</span>
@@ -131,7 +136,7 @@ export default function JobCard({ job, showApplyButton = true }: JobCardProps) {
               View Details
             </Button>
           )}
-          <span className="text-xs text-neutral-500">Posted {getPostedDate(job.postedAt)}</span>
+          <span className="text-xs text-neutral-500">Posted {job.postedAt ? getPostedDate(job.postedAt) : "Recently"}</span>
         </div>
       </div>
     </div>

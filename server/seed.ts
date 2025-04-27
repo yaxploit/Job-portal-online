@@ -264,40 +264,30 @@ async function seedDatabase() {
   }
 
   // Create job applications
-  const jobApplications: Partial<InsertJobApplication>[] = [
+  const jobApplications: InsertJobApplication[] = [
     {
       jobId: createdJobs[0].id,
       seekerId: createdUsers[0].id,
-      status: "applied" as const,
-      appliedDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
       coverLetter: "I am excited to apply for the Frontend Developer position at Tech Corporation. With my extensive experience in React and JavaScript, I believe I would be a great fit for your team."
     },
     {
       jobId: createdJobs[0].id,
       seekerId: createdUsers[1].id,
-      status: "reviewing" as const,
-      appliedDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
       coverLetter: "As an experienced frontend developer with a background in design, I can bring a unique perspective to the Frontend Developer role."
     },
     {
       jobId: createdJobs[2].id,
       seekerId: createdUsers[0].id,
-      status: "interviewing" as const,
-      appliedDate: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000),
       coverLetter: "I'm interested in the DevOps Engineer position, as I have extensive experience with CI/CD pipelines and cloud infrastructure."
     },
     {
       jobId: createdJobs[3].id,
       seekerId: createdUsers[1].id,
-      status: "applied" as const,
-      appliedDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
       coverLetter: "I am writing to express my interest in the UI/UX Designer position at Creative Co. With my background in design and user research, I believe I would be a valuable addition to your team."
     },
     {
       jobId: createdJobs[4].id,
       seekerId: createdUsers[2].id,
-      status: "hired" as const,
-      appliedDate: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000),
       coverLetter: "I am applying for the Data Analyst position. With my background in data science and analytics, I am confident in my ability to provide valuable insights for your business decisions."
     }
   ];

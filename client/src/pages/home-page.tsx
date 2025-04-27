@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { Link, useLocation } from "wouter";
-import { useAuth } from "@/hooks/use-auth";
+import { AuthContext } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
@@ -14,14 +14,9 @@ export default function HomePage() {
   const [, setLocation] = useLocation();
   const [searchKeyword, setSearchKeyword] = useState("");
   
-  // Try to use auth, but handle the case when it's not available
-  let user = null;
-  try {
-    const auth = useAuth();
-    user = auth.user;
-  } catch (error) {
-    console.log("Auth context not available, continuing without user data");
-  }
+  // Use useContext directly to safely access auth context
+  const auth = useContext(AuthContext);
+  const user = auth?.user || null;
   
   // Fetch featured job listings
   const { data: jobs, isLoading: jobsLoading } = useQuery<JobListing[]>({
