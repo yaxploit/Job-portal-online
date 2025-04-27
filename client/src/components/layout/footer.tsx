@@ -62,17 +62,7 @@ export default function Footer() {
               </li>
             </ul>
             
-            {/* Social Media Links */}
-            <div className="flex space-x-4 mt-4">
-              <a 
-                href="https://github.com/yaxploit" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-neutral-600 hover:text-blue-600 transition-colors"
-              >
-                <Github size={20} />
-              </a>
-            </div>
+            {/* Social Media Links moved to copyright section */}
           </div>
         </div>
         
@@ -81,8 +71,9 @@ export default function Footer() {
           <p className="text-neutral-600 text-sm mb-4 md:mb-0">
             &copy; {new Date().getFullYear()} JobNexus. All rights reserved.
           </p>
-          <p className="text-neutral-600 text-sm">
-            Developed by <a 
+          <div className="text-neutral-600 text-sm flex items-center gap-2">
+            <span>Developed by</span>
+            <a 
               href="https://yaxploit.onrender.com" 
               target="_blank" 
               rel="noopener noreferrer"
@@ -90,7 +81,15 @@ export default function Footer() {
             >
               yaxploit
             </a>
-          </p>
+            <a 
+              href="https://github.com/yaxploit" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-neutral-600 hover:text-blue-600 transition-colors"
+            >
+              <Github size={16} />
+            </a>
+          </div>
         </div>
       </div>
     </footer>
