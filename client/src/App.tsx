@@ -44,7 +44,6 @@ function App() {
           <div className="flex-grow">
             <Router />
           </div>
-          <Footer />
         </div>
       </TooltipProvider>
     </ThemeProvider>
