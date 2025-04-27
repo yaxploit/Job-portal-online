@@ -49,7 +49,13 @@ const Footer: React.FC = () => {
         </div>
         
         <div className="border-t border-neutral-200 mt-6 pt-4 flex flex-col md:flex-row justify-between items-center text-sm">
-          <p>© 2025 JobNexus. All rights reserved.</p>
+          <div className="flex flex-col md:flex-row items-center">
+            <p>© 2025 JobNexus. All rights reserved.</p>
+            <p className="md:ml-2 mt-2 md:mt-0">
+              <span className="text-neutral-400 mx-2 hidden md:inline">|</span>
+              <span className="font-medium">Developed by <span className="text-primary font-semibold">yaxploit</span></span>
+            </p>
+          </div>
           <div className="mt-4 md:mt-0 flex space-x-4">
             <Link href="#" className="hover:text-primary">Privacy Policy</Link>
             <Link href="#" className="hover:text-primary">Terms of Service</Link>
