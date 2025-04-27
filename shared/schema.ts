@@ -9,7 +9,8 @@ export const users = pgTable("users", {
   password: text("password").notNull(),
   email: text("email").notNull(),
   name: text("name").notNull(),
-  userType: text("user_type", { enum: ["seeker", "employer"] }).notNull(),
+  userType: text("user_type", { enum: ["seeker", "employer", "admin"] }).notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
 export const insertUserSchema = createInsertSchema(users).omit({
