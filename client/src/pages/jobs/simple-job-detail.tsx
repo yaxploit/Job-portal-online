@@ -27,8 +27,7 @@ import {
   FileText,
   AlertTriangle
 } from "lucide-react";
-import Navbar from "@/components/layout/navbar";
-import Footer from "@/components/layout/footer";
+import BaseLayout from "@/components/layout/base-layout";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function SimpleJobDetail() {
@@ -178,9 +177,8 @@ export default function SimpleJobDetail() {
   
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col">
-        <Navbar />
-        <div className="flex-1 bg-neutral-50 py-8">
+      <BaseLayout>
+        <div className="bg-neutral-50 py-8">
           <div className="max-w-4xl mx-auto px-4">
             <Card>
               <CardContent className="p-6 flex justify-center items-center min-h-[400px]">
@@ -192,16 +190,14 @@ export default function SimpleJobDetail() {
             </Card>
           </div>
         </div>
-        <Footer />
-      </div>
+      </BaseLayout>
     );
   }
   
   if (!job) {
     return (
-      <div className="min-h-screen flex flex-col">
-        <Navbar />
-        <div className="flex-1 bg-neutral-50 py-8">
+      <BaseLayout>
+        <div className="bg-neutral-50 py-8">
           <div className="max-w-4xl mx-auto px-4">
             <Card>
               <CardContent className="p-6 text-center py-10">
@@ -216,8 +212,7 @@ export default function SimpleJobDetail() {
             </Card>
           </div>
         </div>
-        <Footer />
-      </div>
+      </BaseLayout>
     );
   }
   
@@ -232,10 +227,9 @@ export default function SimpleJobDetail() {
   };
   
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
+    <BaseLayout>
       {/* Responsive padding for all screen sizes */}
-      <div className="flex-1 bg-neutral-50 py-4 sm:py-6 md:py-8">
+      <div className="bg-neutral-50 py-4 sm:py-6 md:py-8">
         <div className="max-w-4xl mx-auto px-3 sm:px-4 md:px-6">
           {/* Job Header */}
           <Card className="mb-6">
@@ -483,7 +477,6 @@ export default function SimpleJobDetail() {
           )}
         </div>
       </div>
-      <Footer />
-    </div>
+    </BaseLayout>
   );
 }
