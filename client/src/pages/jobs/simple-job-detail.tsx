@@ -22,38 +22,58 @@ import {
   Clock,
   Briefcase,
   CheckCircle,
-  Loader2
+  Loader2,
+  Upload,
+  FileText,
+  AlertTriangle
 } from "lucide-react";
 import Navbar from "@/components/layout/navbar";
 import Footer from "@/components/layout/footer";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function SimpleJobDetail() {
+  // ----------- GETTING STARTED -----------
+  // Get job ID from the URL parameter
   const { id } = useParams();
   const jobId = id ? parseInt(id) : 0;
+  
+  // Hook for navigating between pages
   const [, navigate] = useLocation();
+  
+  // Hook for showing notification messages
   const { toast } = useToast();
   
+  // ----------- STATE MANAGEMENT -----------
+  // Store job details and loading state
   const [job, setJob] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
   
+  // Application form state
   const [showApplicationForm, setShowApplicationForm] = useState(false);
   const [applicationSubmitted, setApplicationSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [coverLetter, setCoverLetter] = useState("");
   
-  // Fetch job and user on mount
+  // Form fields
+  const [coverLetter, setCoverLetter] = useState("");
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
+  const [resumeFileName, setResumeFileName] = useState("");
+  
+  // ----------- DATA LOADING -----------
+  // This runs when the page first loads
   useEffect(() => {
+    // Function to load the job details and user info
     const fetchData = async () => {
       try {
-        // Load job
+        // Step 1: Load job details from our database
         const jobData = await getJobById(jobId);
         setJob(jobData);
         
-        // Load user
+        // Step 2: Get the current logged-in user (if any)
         const userData = getCurrentUser();
         setUser(userData);
       } catch (error) {
+        // Show error message if something goes wrong
         console.error("Error loading data:", error);
         toast({
           title: "Error",
@@ -61,28 +81,99 @@ export default function SimpleJobDetail() {
           variant: "destructive"
         });
       } finally {
+        // Always mark loading as complete
         setLoading(false);
       }
     };
     
+    // Start loading data
     fetchData();
   }, [jobId, toast]);
   
+  // ----------- FORM HANDLERS -----------
+  
+  // This function handles when a user uploads their resume file
+  const handleResumeUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Step 1: Check if the user selected any files
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      
+      // Step 2: Make sure the file isn't too big (5MB limit)
+      // This prevents server overload and ensures quick uploads
+      if (file.size > 5 * 1024 * 1024) {
+        // Show an error message if file is too large
+        toast({
+          title: "File too large",
+          description: "Resume file must be less than 5MB",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      // Step 3: Make sure the file is a valid resume format (PDF or Word docs only)
+      // This ensures the employer can open the resume
+      if (!file.type.match('application/pdf') && 
+          !file.type.match('application/msword') &&
+          !file.type.match('application/vnd.openxmlformats-officedocument.wordprocessingml.document')) {
+        // Show an error message if wrong file type
+        toast({
+          title: "Invalid file type",
+          description: "Please upload a PDF or Word document",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      // Step 4: If all checks pass, save the resume file
+      setResumeFile(file);
+      setResumeFileName(file.name);
+    }
+  };
+  
+  // This function handles the entire job application submission
   const handleSubmitApplication = (e: React.FormEvent) => {
+    // Step 1: Prevent the page from refreshing (default form behavior)
     e.preventDefault();
+    
+    // Step 2: Show loading state so user knows submission is in progress
     setSubmitting(true);
     
-    // Simulate API call
+    // Step 3: Make sure a resume is attached (it's required)
+    if (!resumeFile) {
+      // Show error if no resume
+      toast({
+        title: "Resume required",
+        description: "Please upload your resume before submitting",
+        variant: "destructive"
+      });
+      setSubmitting(false);
+      return;
+    }
+    
+    // Step 4: Submit the application to our server
+    // In this demo, we use a timeout to simulate server communication
+    // In a real application, this would be an API call to our backend
     setTimeout(() => {
+      // Log what would be sent to the server (for debugging)
+      console.log("Application submitted with:", {
+        jobId,
+        userName: user?.username,
+        email: user?.email,
+        coverLetter,
+        resumeFile: resumeFileName
+      });
+      
+      // Step 5: Update the UI to show success
       setSubmitting(false);
       setApplicationSubmitted(true);
       setShowApplicationForm(false);
       
+      // Step 6: Show a success message to the user
       toast({
         title: "Application Submitted",
         description: "Your job application has been submitted successfully.",
       });
-    }, 1500);
+    }, 1500); // 1.5 second delay to simulate server processing
   };
   
   if (loading) {
@@ -143,8 +234,9 @@ export default function SimpleJobDetail() {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <div className="flex-1 bg-neutral-50 py-8">
-        <div className="max-w-4xl mx-auto px-4">
+      {/* Responsive padding for all screen sizes */}
+      <div className="flex-1 bg-neutral-50 py-4 sm:py-6 md:py-8">
+        <div className="max-w-4xl mx-auto px-3 sm:px-4 md:px-6">
           {/* Job Header */}
           <Card className="mb-6">
             <CardContent className="p-6">
@@ -295,17 +387,82 @@ export default function SimpleJobDetail() {
                           />
                         </div>
                         
-                        <div className="flex justify-end space-x-2 mt-6">
+                        {/* Resume upload section */}
+                        <div>
+                          <Label htmlFor="resume">Upload Resume <span className="text-red-500">*</span></Label>
+                          <div className="mt-1 border-2 border-dashed border-neutral-200 rounded-lg p-6 flex flex-col items-center justify-center">
+                            {resumeFileName ? (
+                              // Show file info when uploaded
+                              <div className="w-full text-center">
+                                <div className="flex items-center justify-center mb-2">
+                                  <FileText className="h-8 w-8 text-primary" />
+                                </div>
+                                <p className="text-sm font-medium text-neutral-700 mb-1">
+                                  {resumeFileName}
+                                </p>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  onClick={() => {
+                                    setResumeFile(null);
+                                    setResumeFileName("");
+                                  }}
+                                  className="text-xs text-red-500 hover:text-red-700"
+                                >
+                                  Remove
+                                </Button>
+                              </div>
+                            ) : (
+                              // Show upload UI when no file
+                              <>
+                                <Upload className="h-10 w-10 text-neutral-400 mb-2" />
+                                <p className="text-sm text-neutral-500 text-center mb-2">
+                                  <span className="font-medium">Click to upload</span> or drag and drop
+                                </p>
+                                <p className="text-xs text-neutral-400 text-center mb-4">
+                                  PDF or Word document (max 5MB)
+                                </p>
+                                <Button 
+                                  variant="outline" 
+                                  className="relative"
+                                  type="button"
+                                >
+                                  Browse files
+                                  <input
+                                    id="resume"
+                                    type="file"
+                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                    onChange={handleResumeUpload}
+                                    accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                                  />
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                          {!resumeFile && (
+                            <Alert variant="destructive" className="mt-2">
+                              <AlertTriangle className="h-4 w-4" />
+                              <AlertDescription>
+                                Resume is required to apply for this position
+                              </AlertDescription>
+                            </Alert>
+                          )}
+                        </div>
+                        
+                        {/* Form action buttons - stack on mobile, side by side on larger screens */}
+                        <div className="flex flex-col sm:flex-row sm:justify-end space-y-2 sm:space-y-0 sm:space-x-2 mt-6">
                           <Button
                             type="button"
                             variant="outline"
                             onClick={() => setShowApplicationForm(false)}
+                            className="w-full sm:w-auto"
                           >
                             Cancel
                           </Button>
                           <Button 
                             type="submit"
                             disabled={submitting}
+                            className="w-full sm:w-auto"
                           >
                             {submitting ? (
                               <>
