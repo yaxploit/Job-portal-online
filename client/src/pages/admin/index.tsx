@@ -15,6 +15,9 @@ import {
   AlertTriangle,
   CheckCircle
 } from "lucide-react";
+import AddUserModal from "@/components/admin/add-user-modal";
+import AddJobModal from "@/components/admin/add-job-modal";
+import { useToast } from "@/hooks/use-toast";
 
 // Types
 interface User {
@@ -44,6 +47,9 @@ export default function AdminDashboard() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
+  const [isAddJobModalOpen, setIsAddJobModalOpen] = useState(false);
+  const { toast } = useToast();
   
   // Checks if user is logged in and is admin
   useEffect(() => {
@@ -129,6 +135,30 @@ export default function AdminDashboard() {
       const updatedJobs = jobs.filter(job => job.id !== jobId);
       setJobs(updatedJobs);
     }
+  };
+  
+  // Handle add user
+  const handleAddUser = (newUser: any) => {
+    const updatedUsers = [...users, newUser];
+    setUsers(updatedUsers);
+    localStorage.setItem('users', JSON.stringify(updatedUsers));
+    toast({
+      title: "User added successfully",
+      description: `${newUser.name} has been added as a ${newUser.userType}.`,
+      variant: "default",
+    });
+  };
+  
+  // Handle add job
+  const handleAddJob = (newJob: any) => {
+    const updatedJobs = [...jobs, newJob];
+    setJobs(updatedJobs);
+    // In a real app, we would also update localStorage or DB
+    toast({
+      title: "Job added successfully",
+      description: `${newJob.title} at ${newJob.company} has been posted.`,
+      variant: "default",
+    });
   };
   
   // Filter users based on search term
@@ -453,7 +483,10 @@ export default function AdminDashboard() {
               <div className="bg-white rounded-lg shadow-sm">
                 <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
                   <h3 className="text-lg font-medium text-gray-900">All Users</h3>
-                  <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center">
+                  <button 
+                    onClick={() => setIsAddUserModalOpen(true)}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center"
+                  >
                     <Plus className="h-4 w-4 mr-1" />
                     Add User
                   </button>
@@ -525,7 +558,10 @@ export default function AdminDashboard() {
               <div className="bg-white rounded-lg shadow-sm">
                 <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
                   <h3 className="text-lg font-medium text-gray-900">All Jobs</h3>
-                  <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center">
+                  <button 
+                    onClick={() => setIsAddJobModalOpen(true)} 
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center"
+                  >
                     <Plus className="h-4 w-4 mr-1" />
                     Add Job
                   </button>
