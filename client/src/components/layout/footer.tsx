@@ -62,10 +62,7 @@ const Footer: React.FC = () => {
         
         <div className="border-t border-neutral-200 mt-8 pt-6 flex flex-col md:flex-row justify-between items-center text-sm">
           <p>© 2025 JobNexus. All rights reserved.</p>
-          <p className="mt-2 md:mt-0 flex items-center">
-            <span>Developed by </span>
-            <a href="https://github.com/yaxploit" target="_blank" rel="noopener noreferrer" className="ml-1 font-medium text-blue-600 hover:text-blue-800">yaxploit</a>
-          </p>
+          {/* Removed developer attribution as requested */}
           <div className="mt-4 md:mt-0 flex space-x-4">
             <Link href="/privacy" className="hover:text-primary">Privacy Policy</Link>
             <Link href="/terms" className="hover:text-primary">Terms of Service</Link>

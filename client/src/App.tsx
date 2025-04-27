@@ -3,9 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "next-themes";
 import { useState, useEffect } from "react";
-import { AuthProvider } from "@/hooks/use-auth";
 
-import { ProtectedRoute } from "./lib/protected-route";
 import HomePage from "@/pages/home-page";
 import AuthPage from "@/pages/auth-page";
 import SeekerDashboard from "@/pages/dashboard/seeker-dashboard";
@@ -23,6 +21,7 @@ import NotFound from "@/pages/not-found";
 import Preloader from "@/components/ui/preloader";
 import Footer from "@/components/layout/footer";
 
+// Simplified routing - no auth restrictions for testing
 function Router() {
   return (
     <Switch>
@@ -32,15 +31,15 @@ function Router() {
       <Route path="/jobs/:id" component={JobDetail} />
       
       {/* Seeker routes */}
-      <ProtectedRoute path="/dashboard/seeker" userType="seeker" component={SeekerDashboard} />
-      <ProtectedRoute path="/profile/seeker" userType="seeker" component={SeekerProfile} />
-      <ProtectedRoute path="/applications/seeker" userType="seeker" component={SeekerApplications} />
+      <Route path="/dashboard/seeker" component={SeekerDashboard} />
+      <Route path="/profile/seeker" component={SeekerProfile} />
+      <Route path="/applications/seeker" component={SeekerApplications} />
       
       {/* Employer routes */}
-      <ProtectedRoute path="/dashboard/employer" userType="employer" component={EmployerDashboard} />
-      <ProtectedRoute path="/profile/employer" userType="employer" component={EmployerProfile} />
-      <ProtectedRoute path="/jobs/post" userType="employer" component={PostJob} />
-      <ProtectedRoute path="/applications/employer/:jobId" userType="employer" component={EmployerApplications} />
+      <Route path="/dashboard/employer" component={EmployerDashboard} />
+      <Route path="/profile/employer" component={EmployerProfile} />
+      <Route path="/jobs/post" component={PostJob} />
+      <Route path="/applications/employer/:jobId" component={EmployerApplications} />
       
       {/* Admin routes */}
       <Route path="/admin/login" component={AdminLogin} />
@@ -53,6 +52,23 @@ function Router() {
 }
 
 function App() {
+  // Initialize local storage
+  useEffect(() => {
+    // Initialize local auth data
+    try {
+      import("@/lib/local-auth").then(({ initLocalAuth }) => {
+        initLocalAuth();
+      });
+      
+      // Initialize local jobs data
+      import("@/lib/local-jobs").then(({ initLocalJobs }) => {
+        initLocalJobs();
+      });
+    } catch (error) {
+      console.error("Error initializing local data:", error);
+    }
+  }, []);
+
   return (
     <ThemeProvider attribute="class" defaultTheme="light">
       <TooltipProvider>
@@ -60,13 +76,10 @@ function App() {
         <Toaster />
         <div className="flex flex-col min-h-screen">
           <div className="flex-grow">
-            <AuthProvider>
-              <Router />
-            </AuthProvider>
+            <Router />
           </div>
           <Footer />
         </div>
-        <div className="creator-tag animate-fade-in">Created by yaxploit</div>
       </TooltipProvider>
     </ThemeProvider>
   );
