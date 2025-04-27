@@ -13,10 +13,12 @@ import {
   Plus, 
   Search,
   AlertTriangle,
-  CheckCircle
+  CheckCircle,
+  Eye
 } from "lucide-react";
 import AddUserModal from "@/components/admin/add-user-modal";
 import AddJobModal from "@/components/admin/add-job-modal";
+import EditJobModal from "@/components/admin/edit-job-modal";
 import { useToast } from "@/hooks/use-toast";
 
 // Types
@@ -49,6 +51,8 @@ export default function AdminDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
   const [isAddJobModalOpen, setIsAddJobModalOpen] = useState(false);
+  const [isEditJobModalOpen, setIsEditJobModalOpen] = useState(false);
+  const [selectedJob, setSelectedJob] = useState<any>(null);
   const { toast } = useToast();
   
   // Checks if user is logged in and is admin
@@ -154,11 +158,11 @@ export default function AdminDashboard() {
       location: newJob.location,
       jobType: newJob.type,
       description: newJob.description || "No description provided",
-      salaryMin: parseInt(newJob.salary.split(' - ')[0].replace(/[₹,]/g, ''), 10) || 0,
-      salaryMax: parseInt(newJob.salary.split(' - ')[1].replace(/[₹,]/g, ''), 10) || 0,
-      skills: [],
-      requirements: "",
-      responsibilities: "",
+      salaryMin: newJob.salaryMin || parseInt(newJob.salary.split(' - ')[0].replace(/[₹,]/g, ''), 10) || 0,
+      salaryMax: newJob.salaryMax || parseInt(newJob.salary.split(' - ')[1].replace(/[₹,]/g, ''), 10) || 0,
+      skills: newJob.skills || [],
+      requirements: newJob.requirements || "",
+      responsibilities: newJob.responsibilities || "",
       postedAt: new Date().toISOString(),
       employerId: 0, // Admin posted job
       status: 'OPEN',
@@ -173,6 +177,69 @@ export default function AdminDashboard() {
       description: `${newJob.title} at ${newJob.company} has been posted.`,
       variant: "default",
     });
+  };
+  
+  // Handle edit job
+  const handleEditJob = (updatedJob: any) => {
+    // Update the job in our local state first
+    const updatedJobs = jobs.map(job => 
+      job.id === updatedJob.id 
+        ? {
+            ...job,
+            title: updatedJob.title,
+            company: updatedJob.company,
+            location: updatedJob.location,
+            type: updatedJob.type,
+            salary: `₹${updatedJob.salaryMin.toLocaleString()} - ₹${updatedJob.salaryMax.toLocaleString()}`
+          } 
+        : job
+    );
+    setJobs(updatedJobs);
+    
+    // Update the job in localStorage
+    const storedJobs = JSON.parse(localStorage.getItem('jobnexus_jobs') || '[]');
+    const updatedStoredJobs = storedJobs.map((job: any) => 
+      job.id === updatedJob.id 
+        ? {
+            ...job,
+            title: updatedJob.title,
+            company: updatedJob.company,
+            location: updatedJob.location,
+            jobType: updatedJob.type,
+            description: updatedJob.description,
+            salaryMin: updatedJob.salaryMin,
+            salaryMax: updatedJob.salaryMax,
+            skills: updatedJob.skills,
+            requirements: updatedJob.requirements,
+            responsibilities: updatedJob.responsibilities
+          } 
+        : job
+    );
+    
+    localStorage.setItem('jobnexus_jobs', JSON.stringify(updatedStoredJobs));
+    
+    toast({
+      title: "Job updated successfully",
+      description: `${updatedJob.title} has been updated.`,
+      variant: "default",
+    });
+  };
+  
+  // Handle opening the edit job modal
+  const handleOpenEditJobModal = (jobId: number) => {
+    const storedJobs = JSON.parse(localStorage.getItem('jobnexus_jobs') || '[]');
+    const jobToEdit = storedJobs.find((job: any) => job.id === jobId);
+    
+    if (jobToEdit) {
+      setSelectedJob(jobToEdit);
+      setIsEditJobModalOpen(true);
+    } else {
+      toast({
+        title: "Error",
+        description: "Job not found",
+        variant: "destructive",
+      });
+    }
   };
   
   // Filter users based on search term
@@ -472,12 +539,24 @@ export default function AdminDashboard() {
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            <button className="text-blue-600 hover:text-blue-900 mr-3">
+                            <button 
+                              className="text-blue-600 hover:text-blue-900 mr-2"
+                              onClick={() => handleOpenEditJobModal(job.id)}
+                              title="Edit job"
+                            >
                               <Edit className="h-4 w-4" />
                             </button>
+                            <Link
+                              href={`/jobs/${job.id}`}
+                              className="text-green-600 hover:text-green-900 mr-2"
+                              title="View job"
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Link>
                             <button 
                               className="text-red-600 hover:text-red-900"
                               onClick={() => handleDeleteJob(job.id)}
+                              title="Delete job"
                             >
                               <Trash2 className="h-4 w-4" />
                             </button>
@@ -625,12 +704,24 @@ export default function AdminDashboard() {
                               <div className="text-sm text-gray-500">{job.createdAt}</div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              <button className="text-blue-600 hover:text-blue-900 mr-3">
+                              <button 
+                                className="text-blue-600 hover:text-blue-900 mr-2"
+                                onClick={() => handleOpenEditJobModal(job.id)}
+                                title="Edit job"
+                              >
                                 <Edit className="h-4 w-4" />
                               </button>
+                              <Link
+                                href={`/jobs/${job.id}`}
+                                className="text-green-600 hover:text-green-900 mr-2"
+                                title="View job"
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Link>
                               <button 
                                 className="text-red-600 hover:text-red-900"
                                 onClick={() => handleDeleteJob(job.id)}
+                                title="Delete job"
                               >
                                 <Trash2 className="h-4 w-4" />
                               </button>
@@ -790,6 +881,13 @@ export default function AdminDashboard() {
         isOpen={isAddJobModalOpen}
         onClose={() => setIsAddJobModalOpen(false)}
         onAddJob={handleAddJob}
+      />
+      
+      <EditJobModal 
+        isOpen={isEditJobModalOpen}
+        onClose={() => setIsEditJobModalOpen(false)}
+        onSaveJob={handleEditJob}
+        job={selectedJob}
       />
     </div>
   );
