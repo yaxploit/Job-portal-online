@@ -154,17 +154,28 @@ export default function AddJobForm() {
     setIsSubmitting(true);
     
     try {
-      // In a real app, this would be an API call to save the job
-      // Here we're using a timeout to simulate an API call
+      // Get current user and jobs from localStorage
+      const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+      const existingJobs = JSON.parse(localStorage.getItem('jobnexus_jobs') || '[]');
+      
+      // Create new job object
+      const newJob = {
+        id: existingJobs.length + 1,
+        ...formData,
+        salaryMin: formData.salaryMin ? parseInt(formData.salaryMin, 10) : 0,
+        salaryMax: formData.salaryMax ? parseInt(formData.salaryMax, 10) : 0,
+        postedAt: new Date().toISOString(),
+        employerId: currentUser.id,
+        status: 'OPEN'
+      };
+      
+      // Log the job data
+      console.log('Job posting submitted:', newJob);
+      
+      // Save to local storage with delay to simulate API call
       setTimeout(() => {
-        // Log the job data that would be sent to the server
-        console.log('Job posting submitted:', {
-          ...formData,
-          salaryMin: formData.salaryMin ? parseInt(formData.salaryMin, 10) : undefined,
-          salaryMax: formData.salaryMax ? parseInt(formData.salaryMax, 10) : undefined,
-          postedAt: new Date().toISOString(),
-          employerId: user?.id,
-        });
+        // Save the new job to localStorage
+        localStorage.setItem('jobnexus_jobs', JSON.stringify([...existingJobs, newJob]));
         
         toast({
           title: "Job Posted",
@@ -173,8 +184,8 @@ export default function AddJobForm() {
         
         setIsSubmitting(false);
         
-        // Redirect to dashboard or jobs page
-        navigate('/dashboard');
+        // Redirect to jobs page where the user can see their posting
+        navigate('/jobs');
       }, 1500);
     } catch (error) {
       setIsSubmitting(false);
