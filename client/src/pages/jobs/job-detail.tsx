@@ -8,7 +8,9 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import Navbar from "@/components/layout/navbar";
 import Footer from "@/components/layout/footer";
 import { Button } from "@/components/ui/button";
-import ApplicationForm from "@/components/jobs/application-form";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Card,
   CardContent,
@@ -32,7 +34,8 @@ import {
   DollarSign, 
   CalendarDays,
   Clock,
-  Tag
+  Tag,
+  Loader2
 } from "lucide-react";
 import { format } from "date-fns";
 
@@ -45,6 +48,7 @@ export default function JobDetail() {
   
   const [coverLetter, setCoverLetter] = useState("");
   const [applicationDialogOpen, setApplicationDialogOpen] = useState(false);
+  const [isApplicationSubmitted, setIsApplicationSubmitted] = useState(false);
   
   // Fetch job details
   const { data: job, isLoading } = useQuery<JobListing>({
@@ -90,6 +94,7 @@ export default function JobDetail() {
         description: "Your application has been successfully submitted.",
       });
       setApplicationDialogOpen(false);
+      setIsApplicationSubmitted(true);
       setCoverLetter("");
     },
     onError: (error: Error) => {
@@ -239,33 +244,147 @@ export default function JobDetail() {
                 </Card>
               )}
               
-              <div className="flex justify-center mt-8">
-                {isOwner ? (
-                  <Button 
-                    variant="outline"
-                    onClick={() => setLocation(`/dashboard/employer`)}
-                  >
-                    Back to Dashboard
-                  </Button>
-                ) : user?.userType === "seeker" ? (
-                  <Button 
-                    size="lg" 
-                    onClick={() => {
-                      console.log("Apply button clicked, setting dialog open to true");
-                      setApplicationDialogOpen(true);
-                    }}
-                  >
-                    Apply for this Position
-                  </Button>
-                ) : (
-                  <Button 
-                    size="lg"
-                    onClick={() => setLocation("/auth")}
-                  >
-                    Sign in to Apply
-                  </Button>
-                )}
-              </div>
+              {isApplicationSubmitted ? (
+                // Success message after application submitted
+                <Card className="mt-8 border-green-200 bg-green-50">
+                  <CardHeader>
+                    <CardTitle className="text-center text-green-800">Application Submitted!</CardTitle>
+                    <CardDescription className="text-center text-green-700">
+                      Your application has been submitted successfully
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center space-y-4">
+                      <p className="text-green-700">
+                        Thanks for applying to <span className="font-semibold">{job.title}</span>. The hiring team will review your application and get back to you soon.
+                      </p>
+                      <div className="p-4 bg-white rounded-lg border border-green-200 text-neutral-700">
+                        <h4 className="font-medium mb-2">What happens next?</h4>
+                        <ol className="list-decimal list-inside text-sm space-y-1 text-left">
+                          <li>Your application is now under review</li>
+                          <li>You may receive an email with additional questions</li>
+                          <li>Selected candidates will be invited for an interview</li>
+                        </ol>
+                      </div>
+                      <div className="flex justify-center space-x-2 mt-6">
+                        <Button 
+                          variant="outline"
+                          onClick={() => setLocation(`/jobs`)}
+                        >
+                          Browse More Jobs
+                        </Button>
+                        <Button 
+                          onClick={() => setLocation(`/dashboard/seeker`)}
+                        >
+                          View My Applications
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : (
+                // Regular application section (shown when not submitted)
+                <>
+                  <div className="flex justify-center mt-8">
+                    {isOwner ? (
+                      <Button 
+                        variant="outline"
+                        onClick={() => setLocation(`/dashboard/employer`)}
+                      >
+                        Back to Dashboard
+                      </Button>
+                    ) : user?.userType === "seeker" ? (
+                      <Button 
+                        size="lg" 
+                        onClick={() => {
+                          console.log("Apply button clicked, setting dialog open to true");
+                          setApplicationDialogOpen(!applicationDialogOpen);
+                        }}
+                      >
+                        {applicationDialogOpen ? "Hide Application Form" : "Apply for this Position"}
+                      </Button>
+                    ) : (
+                      <Button 
+                        size="lg"
+                        onClick={() => setLocation("/auth")}
+                      >
+                        Sign in to Apply
+                      </Button>
+                    )}
+                  </div>
+                  
+                  {/* Inline Application Form */}
+                  {job && applicationDialogOpen && user?.userType === "seeker" && (
+                    <Card className="mt-6 border-primary-200">
+                      <CardHeader>
+                        <CardTitle className="text-center">Apply for {job.title}</CardTitle>
+                        <CardDescription className="text-center">Please fill out the form below to apply</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <form onSubmit={(e) => {
+                          e.preventDefault();
+                          handleApply({
+                            jobId: job.id,
+                            coverLetter,
+                            applicationDetails: {
+                              fullName: user.username,
+                              email: user.email || "",
+                              message: coverLetter
+                            }
+                          });
+                        }}>
+                          <div className="space-y-4">
+                            <div>
+                              <Label htmlFor="name">Your Name</Label>
+                              <Input id="name" defaultValue={user.username} readOnly className="mt-1" />
+                            </div>
+                            
+                            <div>
+                              <Label htmlFor="email">Email Address</Label>
+                              <Input id="email" type="email" defaultValue={user.email || ""} readOnly className="mt-1" />
+                            </div>
+                            
+                            <div>
+                              <Label htmlFor="coverLetter">Cover Letter / Message</Label>
+                              <Textarea 
+                                id="coverLetter"
+                                value={coverLetter}
+                                onChange={(e) => setCoverLetter(e.target.value)}
+                                placeholder="Tell the employer why you're a good fit for this position..."
+                                className="mt-1"
+                                rows={6}
+                              />
+                            </div>
+                            
+                            <div className="flex justify-end space-x-2 mt-6">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setApplicationDialogOpen(false)}
+                              >
+                                Cancel
+                              </Button>
+                              <Button 
+                                type="submit"
+                                disabled={applyMutation.isPending}
+                              >
+                                {applyMutation.isPending ? (
+                                  <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Submitting...
+                                  </>
+                                ) : (
+                                  "Submit Application"
+                                )}
+                              </Button>
+                            </div>
+                          </div>
+                        </form>
+                      </CardContent>
+                    </Card>
+                  )}
+                </>
+              )}
             </>
           ) : (
             <Card>
@@ -286,16 +405,7 @@ export default function JobDetail() {
       </div>
       <Footer />
       
-      {/* Application Form */}
-      {job && (
-        <ApplicationForm
-          job={job}
-          isOpen={applicationDialogOpen}
-          onClose={() => setApplicationDialogOpen(false)}
-          onSubmit={handleApply}
-          isSubmitting={applyMutation.isPending}
-        />
-      )}
+      {/* Using Dialog-less approach for Application Form */}
     </div>
   );
 }
