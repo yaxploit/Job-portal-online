@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Search, Briefcase, MapPin, Clock, ChevronRight } from "lucide-react";
-import Footer from "@/components/layout/footer";
+import BaseLayout from "@/components/layout/base-layout";
 
 // Sample job data for demo
 const sampleJobs = [
@@ -112,22 +112,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen">
-      {/* Simple Navbar */}
-      <nav className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <Link href="/" className="text-2xl font-bold text-blue-600">JobNexus</Link>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link href="/jobs" className="text-gray-600 hover:text-gray-900">Jobs</Link>
-              <Link href="/auth" className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700">Login / Sign Up</Link>
-            </div>
-          </div>
-        </div>
-      </nav>
-      
+    <BaseLayout>
       {/* Hero Section with Gradient Background */}
       <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white">
         <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:py-24 lg:px-8">
@@ -311,6 +296,6 @@ export default function HomePage() {
           </div>
         </div>
       </div>
-    </div>
+    </BaseLayout>
   );
 }
