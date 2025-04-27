@@ -166,7 +166,7 @@ export default function JobDetail() {
                         {job.salaryMin && job.salaryMax && (
                           <div className="flex items-center text-neutral-600">
                             <DollarSign className="h-4 w-4 mr-1" />
-                            <span>${job.salaryMin.toLocaleString()} - ${job.salaryMax.toLocaleString()}</span>
+                            <span>₹{job.salaryMin.toLocaleString()} - ₹{job.salaryMax.toLocaleString()}</span>
                           </div>
                         )}
                         <div className="flex items-center text-neutral-600">

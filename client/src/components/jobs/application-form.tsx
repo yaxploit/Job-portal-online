@@ -441,10 +441,9 @@ export default function ApplicationForm({
     }
   };
   
-  if (!isOpen) return null;
-  
   console.log("ApplicationForm rendered with isOpen:", isOpen);
 
+  // Don't return null here, let the Dialog component handle visibility
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">

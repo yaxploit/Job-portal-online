@@ -113,7 +113,7 @@ export default function JobCard({ job, showApplyButton = true }: JobCardProps) {
           {job.salaryMin && job.salaryMax && (
             <div className="flex items-start">
               <DollarSign className="h-4 w-4 text-neutral-500 mr-2 mt-0.5 flex-shrink-0" />
-              <span>${job.salaryMin.toLocaleString()} - ${job.salaryMax.toLocaleString()} per year</span>
+              <span>₹{job.salaryMin.toLocaleString()} - ₹{job.salaryMax.toLocaleString()} per year</span>
             </div>
           )}
         </div>
