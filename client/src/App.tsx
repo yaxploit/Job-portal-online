@@ -1,6 +1,4 @@
 import { Switch, Route } from "wouter";
-import { queryClient } from "./lib/queryClient";
-import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "next-themes";
@@ -10,7 +8,7 @@ import HomePage from "@/pages/home-page";
 import AuthPage from "@/pages/auth-page";
 import SeekerDashboard from "@/pages/dashboard/seeker-dashboard";
 import EmployerDashboard from "@/pages/dashboard/employer-dashboard";
-import JobListing from "@/pages/jobs/job-listing";
+import JobListingPage from "@/pages/jobs/job-listing";
 import JobDetail from "@/pages/jobs/job-detail";
 import PostJob from "@/pages/jobs/post-job";
 import SeekerProfile from "@/pages/profile/seeker-profile";
@@ -24,7 +22,7 @@ function Router() {
     <Switch>
       <Route path="/" component={HomePage} />
       <Route path="/auth" component={AuthPage} />
-      <Route path="/jobs" component={JobListing} />
+      <Route path="/jobs" component={JobListingPage} />
       <Route path="/jobs/:id" component={JobDetail} />
       
       {/* Seeker routes */}
@@ -46,14 +44,12 @@ function Router() {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider attribute="class" defaultTheme="light">
-        <TooltipProvider>
-          <Toaster />
-          <Router />
-        </TooltipProvider>
-      </ThemeProvider>
-    </QueryClientProvider>
+    <ThemeProvider attribute="class" defaultTheme="light">
+      <TooltipProvider>
+        <Toaster />
+        <Router />
+      </TooltipProvider>
+    </ThemeProvider>
   );
 }
 

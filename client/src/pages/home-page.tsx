@@ -12,8 +12,16 @@ import { Search, MapPin, Briefcase } from "lucide-react";
 
 export default function HomePage() {
   const [, setLocation] = useLocation();
-  const { user } = useAuth();
   const [searchKeyword, setSearchKeyword] = useState("");
+  
+  // Try to use auth, but handle the case when it's not available
+  let user = null;
+  try {
+    const auth = useAuth();
+    user = auth.user;
+  } catch (error) {
+    console.log("Auth context not available, continuing without user data");
+  }
   
   // Fetch featured job listings
   const { data: jobs, isLoading: jobsLoading } = useQuery<JobListing[]>({

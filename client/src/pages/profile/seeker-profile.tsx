@@ -1,3 +1,4 @@
+import React from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
@@ -5,7 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { insertSeekerProfileSchema, SeekerProfile } from "@shared/schema";
+import { insertSeekerProfileSchema, SeekerProfile as SeekerProfileType } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import Navbar from "@/components/layout/navbar";
 import Footer from "@/components/layout/footer";
@@ -78,7 +79,7 @@ export default function SeekerProfile() {
   const [, setLocation] = useLocation();
 
   // Fetch seeker profile
-  const { data: profile, isLoading } = useQuery<SeekerProfile>({
+  const { data: profile, isLoading } = useQuery<SeekerProfileType>({
     queryKey: ["/api/profile/seeker"],
     queryFn: async () => {
       try {
@@ -152,7 +153,7 @@ export default function SeekerProfile() {
 
   // Create profile mutation
   const createProfileMutation = useMutation({
-    mutationFn: async (data: SeekerProfile) => {
+    mutationFn: async (data: SeekerProfileType) => {
       return apiRequest("POST", "/api/profile/seeker", data);
     },
     onSuccess: () => {
@@ -174,7 +175,7 @@ export default function SeekerProfile() {
 
   // Update profile mutation
   const updateProfileMutation = useMutation({
-    mutationFn: async (data: { id: number; profile: Partial<SeekerProfile> }) => {
+    mutationFn: async (data: { id: number; profile: Partial<SeekerProfileType> }) => {
       return apiRequest("PUT", `/api/profile/seeker/${data.id}`, data.profile);
     },
     onSuccess: () => {
@@ -229,7 +230,7 @@ export default function SeekerProfile() {
       });
     } else {
       // Create new profile
-      createProfileMutation.mutate(profileData as SeekerProfile);
+      createProfileMutation.mutate(profileData as SeekerProfileType);
     }
   };
 

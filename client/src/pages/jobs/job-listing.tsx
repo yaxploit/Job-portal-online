@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation, useSearch } from "wouter";
-import { JobListing } from "@shared/schema";
+import { JobListing as JobListingType } from "@shared/schema";
 import Navbar from "@/components/layout/navbar";
 import Footer from "@/components/layout/footer";
 import JobCard from "@/components/ui/job-card";
@@ -17,7 +17,7 @@ import {
   SheetTrigger 
 } from "@/components/ui/sheet";
 
-export default function JobListing() {
+export default function JobListingPage() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
   const search = useSearch();
@@ -36,7 +36,7 @@ export default function JobListing() {
   }, [search, params]);
 
   // Fetch jobs based on filters
-  const { data: jobs, isLoading, refetch } = useQuery<JobListing[]>({
+  const { data: jobs, isLoading, refetch } = useQuery<JobListingType[]>({
     queryKey: ["/api/jobs", { keyword, location, jobType }],
     queryFn: async () => {
       let url = "/api/jobs?";

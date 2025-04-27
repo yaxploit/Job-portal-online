@@ -1,3 +1,4 @@
+import React from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
@@ -5,7 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { insertEmployerProfileSchema, EmployerProfile } from "@shared/schema";
+import { insertEmployerProfileSchema, EmployerProfile as EmployerProfileType } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import Navbar from "@/components/layout/navbar";
 import Footer from "@/components/layout/footer";
@@ -52,7 +53,7 @@ export default function EmployerProfile() {
   const [, setLocation] = useLocation();
 
   // Fetch employer profile
-  const { data: profile, isLoading } = useQuery<EmployerProfile>({
+  const { data: profile, isLoading } = useQuery<EmployerProfileType>({
     queryKey: ["/api/profile/employer"],
     queryFn: async () => {
       try {
@@ -103,7 +104,7 @@ export default function EmployerProfile() {
 
   // Create profile mutation
   const createProfileMutation = useMutation({
-    mutationFn: async (data: EmployerProfile) => {
+    mutationFn: async (data: EmployerProfileType) => {
       return apiRequest("POST", "/api/profile/employer", data);
     },
     onSuccess: () => {
@@ -125,7 +126,7 @@ export default function EmployerProfile() {
 
   // Update profile mutation
   const updateProfileMutation = useMutation({
-    mutationFn: async (data: { id: number; profile: Partial<EmployerProfile> }) => {
+    mutationFn: async (data: { id: number; profile: Partial<EmployerProfileType> }) => {
       return apiRequest("PUT", `/api/profile/employer/${data.id}`, data.profile);
     },
     onSuccess: () => {
@@ -165,7 +166,7 @@ export default function EmployerProfile() {
       });
     } else {
       // Create new profile
-      createProfileMutation.mutate(profileData as EmployerProfile);
+      createProfileMutation.mutate(profileData as EmployerProfileType);
     }
   };
 
