@@ -4,6 +4,15 @@ import { JobListing } from "@shared/schema";
 // Local storage key
 const JOBS_KEY = "jobnexus_jobs";
 
+// Helper function to create a properly formatted Date for the database
+function createDate(daysOffset: number = 0): Date {
+  const date = new Date();
+  if (daysOffset !== 0) {
+    date.setDate(date.getDate() + daysOffset);
+  }
+  return date;
+}
+
 // Realistic job data
 const DEFAULT_JOBS: JobListing[] = [
   {
@@ -16,8 +25,8 @@ const DEFAULT_JOBS: JobListing[] = [
     salaryMin: 90000,
     salaryMax: 130000,
     skills: ["React", "JavaScript", "TypeScript", "HTML", "CSS"],
-    applicationDeadline: new Date(new Date().setDate(new Date().getDate() + 30)).toISOString(),
-    postedAt: new Date().toISOString(),
+    applicationDeadline: createDate(30),
+    postedAt: createDate(),
     isActive: true,
   },
   {
@@ -306,30 +315,58 @@ export function getFilteredJobs(filters: {
   keyword?: string;
   location?: string;
   jobType?: string;
+  employerId?: number;
 }): JobListing[] {
+  console.log("Filtering jobs with criteria:", filters);
   const jobs = getJobs();
   
-  return jobs.filter(job => {
-    // Filter by keyword (title, description, skills)
-    if (filters.keyword && 
-        !job.title.toLowerCase().includes(filters.keyword.toLowerCase()) &&
-        !job.description.toLowerCase().includes(filters.keyword.toLowerCase()) &&
-        !job.skills.some(skill => skill.toLowerCase().includes(filters.keyword!.toLowerCase()))) {
-      return false;
+  // For empty filters, return all jobs
+  if (!filters.keyword && !filters.location && !filters.jobType && !filters.employerId) {
+    console.log("No filters applied, returning all jobs:", jobs.length);
+    return jobs;
+  }
+  
+  const filtered = jobs.filter(job => {
+    // Apply keyword filter (search in title, description, and skills)
+    if (filters.keyword && filters.keyword.trim() !== "") {
+      const keyword = filters.keyword.toLowerCase();
+      const titleMatch = job.title.toLowerCase().includes(keyword);
+      const descMatch = job.description.toLowerCase().includes(keyword);
+      const skillsMatch = job.skills ? job.skills.some(skill => 
+        skill.toLowerCase().includes(keyword)
+      ) : false;
+      
+      if (!(titleMatch || descMatch || skillsMatch)) {
+        return false;
+      }
     }
     
-    // Filter by location
-    if (filters.location && !job.location.toLowerCase().includes(filters.location.toLowerCase())) {
-      return false;
+    // Apply location filter
+    if (filters.location && filters.location.trim() !== "") {
+      if (!job.location.toLowerCase().includes(filters.location.toLowerCase())) {
+        return false;
+      }
     }
     
-    // Filter by job type
-    if (filters.jobType && job.jobType !== filters.jobType) {
-      return false;
+    // Apply job type filter (exact match)
+    if (filters.jobType && filters.jobType !== "all" && filters.jobType.trim() !== "") {
+      if (job.jobType !== filters.jobType) {
+        return false;
+      }
+    }
+    
+    // Apply employer filter
+    if (filters.employerId) {
+      if (job.employerId !== filters.employerId) {
+        return false;
+      }
     }
     
     return true;
   });
+  
+  console.log("Filtered jobs:", filtered.length);
+  return filtered;
 }
 
 // Get job by ID

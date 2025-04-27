@@ -133,7 +133,7 @@ export default function UserAuthForm({ mode, userType }: UserAuthFormProps) {
           email: data.email,
           password: data.password,
           confirmPassword: data.confirmPassword,
-          userType: userType,
+          userType: userType as "seeker" | "employer" | "admin",
         },
         {
           onSettled: () => {
