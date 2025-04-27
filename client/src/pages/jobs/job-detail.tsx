@@ -38,7 +38,7 @@ import { format } from "date-fns";
 
 export default function JobDetail() {
   const { id } = useParams();
-  const jobId = parseInt(id);
+  const jobId = id ? parseInt(id) : 0;
   const { user } = useAuth();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
@@ -91,7 +91,8 @@ export default function JobDetail() {
   };
   
   // Format date
-  const formatDate = (dateString: string | Date) => {
+  const formatDate = (dateString: string | Date | null) => {
+    if (!dateString) return "N/A";
     return format(new Date(dateString), "MMM dd, yyyy");
   };
 
@@ -126,7 +127,7 @@ export default function JobDetail() {
                     <div>
                       <h1 className="text-2xl font-bold text-neutral-900 mb-1">{job.title}</h1>
                       <p className="text-neutral-600 mb-4">
-                        {job.employerName || "Company Name"}
+                        Company Name
                       </p>
                       
                       <div className="flex flex-wrap gap-4 mb-6">

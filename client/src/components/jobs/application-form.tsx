@@ -440,7 +440,7 @@ export default function ApplicationForm({
             </div>
             <h2 className="text-2xl font-bold mb-2">Application Submitted!</h2>
             <p className="text-neutral-600 max-w-md mx-auto mb-6">
-              Thank you for applying to {job.title} at {job.employerName || "the company"}. 
+              Thank you for applying to {job.title}. 
               Your application has been received.
             </p>
             <p className="text-sm text-neutral-500 mb-6">
@@ -454,7 +454,7 @@ export default function ApplicationForm({
             <DialogHeader>
               <DialogTitle>Apply to {job.title}</DialogTitle>
               <DialogDescription>
-                {job.employerName || "Company"} • {job.location}
+                {job.location}
               </DialogDescription>
             </DialogHeader>
             
