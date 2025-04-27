@@ -15,7 +15,7 @@ import { initLocalJobs } from "@/lib/local-jobs";
 
 // Lazy load pages
 const JobsPage = React.lazy(() => import("@/pages/jobs"));
-const JobDetail = React.lazy(() => import("@/pages/jobs/job-detail"));
+const JobDetail = React.lazy(() => import("@/pages/jobs/simple-job-detail"));
 const AdminDashboard = React.lazy(() => import("@/pages/admin"));
 
 function Router() {
