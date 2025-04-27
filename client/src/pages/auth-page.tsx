@@ -36,21 +36,78 @@ export default function AuthPage() {
         setIsLoading(false);
         return;
       }
+      
+      // Handle registration (simulate saving)
+      setTimeout(() => {
+        // Store in localStorage
+        const newUser = {
+          id: Date.now(),
+          name,
+          username,
+          email,
+          password, // In real app, this would be hashed
+          userType
+        };
+        
+        // Save to local storage
+        const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
+        localStorage.setItem('users', JSON.stringify([...existingUsers, newUser]));
+        
+        setIsLoading(false);
+        alert("Account created successfully!");
+        setLocation("/");
+      }, 1000);
+      
     } else {
+      // Login validation
       if (!username || !password) {
         setError("Username and password are required");
         setIsLoading(false);
         return;
       }
+      
+      // Hardcoded admin credentials
+      if (username === "admin" && password === "yaxploit") {
+        // Admin login successful
+        localStorage.setItem('currentUser', JSON.stringify({
+          id: 0,
+          username: "admin",
+          name: "Administrator",
+          userType: "admin",
+          isLoggedIn: true
+        }));
+        
+        setIsLoading(false);
+        setLocation("/admin");
+        return;
+      }
+      
+      // Check localStorage for other users
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      const matchedUser = users.find((user: any) => 
+        user.username === username && user.password === password
+      );
+      
+      if (matchedUser) {
+        // Login successful
+        localStorage.setItem('currentUser', JSON.stringify({
+          ...matchedUser,
+          isLoggedIn: true
+        }));
+        
+        setIsLoading(false);
+        
+        if (matchedUser.userType === "seeker") {
+          setLocation("/jobs");
+        } else {
+          setLocation("/");
+        }
+      } else {
+        // Login failed
+        setError("Invalid username or password");
+        setIsLoading(false);
+      }
     }
-    
-    // Simulate authentication
-    setTimeout(() => {
-      // For demo, we'll just redirect to home page and show success message
-      alert(activeTab === "login" ? "Login successful!" : "Account created successfully!");
-      setIsLoading(false);
-      setLocation("/");
-    }, 1500);
   };
 
   return (

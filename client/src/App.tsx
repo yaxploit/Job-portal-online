@@ -12,8 +12,9 @@ import NotFound from "@/pages/not-found";
 import { initLocalAuth } from "@/lib/local-auth";
 import { initLocalJobs } from "@/lib/local-jobs";
 
-// Lazy load job pages
+// Lazy load pages
 const JobsPage = React.lazy(() => import("@/pages/jobs"));
+const AdminDashboard = React.lazy(() => import("@/pages/admin"));
 
 function Router() {
   return (
@@ -23,6 +24,11 @@ function Router() {
       <Route path="/jobs">
         <React.Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
           <JobsPage />
+        </React.Suspense>
+      </Route>
+      <Route path="/admin">
+        <React.Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+          <AdminDashboard />
         </React.Suspense>
       </Route>
       <Route path="/:rest*" component={NotFound} />
