@@ -1,33 +1,136 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { useAuth } from "@/hooks/use-auth";
-import UserAuthForm from "@/components/ui/user-auth-form";
+import { getCurrentUser } from "@/lib/local-auth";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+
+// Simple authentication form component
+const SimpleAuthForm = ({ mode, userType }: { mode: string, userType: string }) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [, setLocation] = useLocation();
+  
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    
+    // For testing purposes, simulate a login or registration
+    setTimeout(() => {
+      setIsLoading(false);
+      if (userType === "seeker") {
+        setLocation("/");
+      } else {
+        setLocation("/");
+      }
+    }, 1000);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {mode === "register" && (
+        <div className="space-y-2">
+          <label htmlFor="name" className="block text-sm font-medium text-gray-700">Full Name</label>
+          <input
+            id="name"
+            name="name"
+            type="text"
+            className="w-full rounded-md border border-gray-300 p-2"
+            placeholder="Your name"
+          />
+        </div>
+      )}
+      
+      <div className="space-y-2">
+        <label htmlFor="username" className="block text-sm font-medium text-gray-700">Username</label>
+        <input
+          id="username"
+          name="username"
+          type="text"
+          className="w-full rounded-md border border-gray-300 p-2"
+          placeholder="Your username"
+        />
+      </div>
+      
+      {mode === "register" && (
+        <div className="space-y-2">
+          <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            className="w-full rounded-md border border-gray-300 p-2"
+            placeholder="Your email"
+          />
+        </div>
+      )}
+      
+      <div className="space-y-2">
+        <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          className="w-full rounded-md border border-gray-300 p-2"
+          placeholder="Your password"
+        />
+      </div>
+      
+      {mode === "register" && (
+        <div className="space-y-2">
+          <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">Confirm Password</label>
+          <input
+            id="confirmPassword"
+            name="confirmPassword"
+            type="password"
+            className="w-full rounded-md border border-gray-300 p-2"
+            placeholder="Confirm your password"
+          />
+        </div>
+      )}
+      
+      <div className="flex items-center justify-between">
+        {mode === "login" && (
+          <>
+            <div className="flex items-center">
+              <input id="remember" type="checkbox" className="h-4 w-4 text-blue-600" />
+              <label htmlFor="remember" className="ml-2 text-sm text-gray-700">
+                Remember me
+              </label>
+            </div>
+            <a href="#" className="text-sm text-blue-600 hover:text-blue-800">
+              Forgot password?
+            </a>
+          </>
+        )}
+      </div>
+      
+      <button
+        type="submit"
+        className="w-full bg-blue-600 py-2 px-4 text-white rounded-md hover:bg-blue-700"
+        disabled={isLoading}
+      >
+        {isLoading
+          ? 'Processing...'
+          : mode === 'login'
+            ? 'Sign In'
+            : 'Create Account'
+        }
+      </button>
+    </form>
+  );
+};
 
 export default function AuthPage() {
   const [, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState<string>("login");
   const [userType, setUserType] = useState<string>("seeker");
   
-  // Safe auth usage with fallback
-  let user = null;
-  let isLoading = false;
-  try {
-    const auth = useAuth();
-    user = auth.user;
-    isLoading = auth.isLoading;
-  } catch (error) {
-    console.log("Auth context not available in AuthPage, continuing without user data");
-  }
-
-  // Redirect to appropriate dashboard if already logged in
+  // Check if user is already logged in
   useEffect(() => {
-    if (user && !isLoading) {
-      const dashboardPath = user.userType === "seeker" ? "/dashboard/seeker" : "/dashboard/employer";
+    const user = getCurrentUser();
+    if (user) {
+      const dashboardPath = user.userType === "seeker" ? "/" : "/";
       setLocation(dashboardPath);
     }
-  }, [user, isLoading, setLocation]);
+  }, [setLocation]);
 
   return (
     <div className="flex min-h-screen bg-neutral-50">
@@ -76,11 +179,11 @@ export default function AuthPage() {
             </div>
 
             <TabsContent value="login">
-              <UserAuthForm mode="login" userType={userType} />
+              <SimpleAuthForm mode="login" userType={userType} />
             </TabsContent>
 
             <TabsContent value="register">
-              <UserAuthForm mode="register" userType={userType} />
+              <SimpleAuthForm mode="register" userType={userType} />
             </TabsContent>
           </Tabs>
         </div>
