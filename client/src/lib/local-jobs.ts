@@ -95,8 +95,8 @@ const DEFAULT_JOBS: JobListing[] = [
     salaryMin: 50000,
     salaryMax: 70000,
     skills: ["Social Media Marketing", "Content Creation", "Analytics", "Copywriting"],
-    applicationDeadline: new Date(new Date().setDate(new Date().getDate() + 30)).toISOString(),
-    postedAt: new Date(new Date().setDate(new Date().getDate() - 2)).toISOString(),
+    applicationDeadline: createDate(30),
+    postedAt: createDate(-2),
     isActive: true,
   },
   {

@@ -3,6 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "next-themes";
 import { useState, useEffect } from "react";
+import { AuthProvider } from "@/hooks/use-auth";
 
 import { ProtectedRoute } from "./lib/protected-route";
 import HomePage from "@/pages/home-page";
@@ -59,7 +60,9 @@ function App() {
         <Toaster />
         <div className="flex flex-col min-h-screen">
           <div className="flex-grow">
-            <Router />
+            <AuthProvider>
+              <Router />
+            </AuthProvider>
           </div>
           <Footer />
         </div>
